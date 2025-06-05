@@ -1,0 +1,11 @@
+{
+  "plugins": [],
+  "importOrder": ["^react(.*)$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "singleQuote": true,
+  "semi": false,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "arrowParens": "always"
+}
