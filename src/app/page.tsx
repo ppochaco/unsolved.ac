@@ -1,3 +1,3 @@
 export default function Home() {
-  return <div>unsolved.ac</div>;
+  return <div>unsolved.ac</div>
 }
