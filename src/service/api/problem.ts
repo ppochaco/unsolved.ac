@@ -1,8 +1,7 @@
+import { END_VALUE, START_VALUE } from '@/constant'
 import { SolvedAcProblem } from '@/types'
-import { solvedAcApi } from '../instance'
 
-const START_LEVEL = 6 // 실버5
-const END_LEVEL = 20 // 플레1
+import { solvedAcApi } from '../instance'
 
 type SearchProblemResponse = {
   count: number
@@ -11,7 +10,7 @@ type SearchProblemResponse = {
 
 export const levelProblemApi = async () => {
   const response = await solvedAcApi.get<SearchProblemResponse>(
-    `/api/v3/search/problem?query=(*${START_LEVEL}...${END_LEVEL})`,
+    `/api/v3/search/problem?query=(*${START_VALUE}...${END_VALUE})`,
   )
 
   return response.data.items
