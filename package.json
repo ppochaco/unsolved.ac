@@ -27,6 +27,7 @@
     "eslint-config-prettier": "^10.1.5",
     "prisma": "^6.9.0",
     "tailwindcss": "^4",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   },
   "prisma": {
