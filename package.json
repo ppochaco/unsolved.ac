@@ -6,13 +6,19 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "update-tags": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateTags.ts",
+    "update-silver-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts SILVER",
+    "update-gold-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts GOLD",
+    "update-platinum-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts PLATINUM"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
+    "axios": "^1.9.0",
     "next": "15.3.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -25,6 +31,10 @@
     "eslint-config-prettier": "^10.1.5",
     "prisma": "^6.9.0",
     "tailwindcss": "^4",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/scripts/createLevels.ts"
   }
 }
