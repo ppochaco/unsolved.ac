@@ -83,9 +83,7 @@ async function processTier(tier: Tier) {
 
       if (problems.length === 0) break
 
-      for (const problem of problems) {
-        await upsertProblem(problem)
-      }
+      await Promise.all(problems.map((problem) => upsertProblem(problem)))
     }
   }
 }
