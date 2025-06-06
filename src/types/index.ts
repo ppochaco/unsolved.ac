@@ -1,1 +1,1 @@
-export { type SolvedAcProblem } from './solvedac'
+export { type SolvedAcProblem, type SolvedAcTag } from './solvedac'

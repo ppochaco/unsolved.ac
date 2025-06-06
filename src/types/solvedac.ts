@@ -1,3 +1,7 @@
+/**
+ * Represents a problem from solved.ac API.
+ * See: https://solvedac.github.io/unofficial-documentation/#/schemas/Problem
+ */
 export type SolvedAcProblem = {
   problemId: number
   titleKo: string
@@ -25,7 +29,11 @@ type SolvedAcTitle = {
   isOriginal: boolean
 }
 
-type SolvedAcTag = {
+/**
+ * Represents a problem tag from solved.ac API.
+ * See: https://solvedac.github.io/unofficial-documentation/#/schemas/ProblemTag
+ */
+export type SolvedAcTag = {
   key: string
   isMeta: boolean
   bojTagId: number
