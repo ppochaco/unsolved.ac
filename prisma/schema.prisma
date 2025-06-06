@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Level {
-  id       Int    @id
+  id       Int    @id @default(autoincrement())
   value    Int    @unique
   name     String @unique
   imageUrl String
@@ -39,7 +39,7 @@ model Problem {
 }
 
 model Tag {
-  id           Int    @id
+  id           Int    @id @default(autoincrement())
   key          String @unique
   name         String
   problemCount Int
