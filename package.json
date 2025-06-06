@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "update-tags": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateTags.ts"
+    "update-tags": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateTags.ts",
+    "update-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",

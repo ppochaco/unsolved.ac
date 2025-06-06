@@ -48,7 +48,7 @@ model Tag {
 }
 
 model ProblemTag {
-  id        Int @id
+  id        Int @id @default(autoincrement())
   problemId Int
   tagId     Int
 
