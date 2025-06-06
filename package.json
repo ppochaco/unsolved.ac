@@ -28,5 +28,8 @@
     "prisma": "^6.9.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/scripts/createLevels.ts"
   }
 }
