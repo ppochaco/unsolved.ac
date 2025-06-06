@@ -1,18 +1,17 @@
-import { START_VALUE } from '../../src/constant'
+import { RANKS, TIER_DISPLAY_NAME, TIER_START_VALUE, TIERS } from '@/constant'
 import { PrismaClient } from '../../src/generated/prisma'
 
 const prisma = new PrismaClient()
-async function main() {
-  const tier = ['Silver', 'Glod', 'Platinum']
-  const rank = ['V', 'Ⅳ', 'Ⅲ', 'Ⅱ', 'I']
-  let value = START_VALUE
 
-  for (const cur_tier of tier) {
-    for (const cur_rank of rank) {
+async function main() {
+  let value = TIER_START_VALUE['SILVER']
+
+  for (const tier of TIERS) {
+    for (const rank of RANKS) {
       await prisma.level.create({
         data: {
           value,
-          name: `${cur_tier} ${cur_rank}`,
+          name: `${TIER_DISPLAY_NAME[tier]} ${rank}`,
           imageUrl: `https://static.solved.ac/tier_small/${value}.svg`,
         },
       })

@@ -1,1 +1,2 @@
-export { START_VALUE, END_VALUE } from './level'
+export { TIERS, RANKS } from './level'
+export { TIER_DISPLAY_NAME, TIER_START_VALUE } from './tier'
