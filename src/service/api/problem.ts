@@ -22,6 +22,8 @@ export const levelProblemApi = async ({
       params: {
         query: `(*${value}..${value})`,
         page,
+        sort: 'solved',
+        direction: 'desc',
       },
     },
   )

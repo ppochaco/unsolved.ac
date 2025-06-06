@@ -4,7 +4,7 @@ import { RANKS, TIER_START_VALUE, TIERS } from '@/constant'
 import { SolvedAcProblem, Tier } from '@/types'
 
 const prisma = new PrismaClient()
-const MAX_PAGE = 20
+const MAX_PAGE = 40
 
 const rawTier = process.argv[2]
 
@@ -81,9 +81,9 @@ async function processTier(tier: Tier) {
     for (let page = 1; page <= MAX_PAGE; page++) {
       const problems = await levelProblemApi({ value, page })
 
-      for (const problem of problems) {
-        await upsertProblem(problem)
-      }
+      if (problems.length === 0) break
+
+      await Promise.all(problems.map((problem) => upsertProblem(problem)))
     }
   }
 }
