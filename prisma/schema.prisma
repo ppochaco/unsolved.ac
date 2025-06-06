@@ -13,3 +13,47 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Level {
+  id       Int    @id
+  value    Int    @unique
+  name     String @unique
+  imageUrl String
+
+  Problems Problem[]
+}
+
+model Problem {
+  id          Int      @id
+  title       String
+  solvedCount Int
+  updatedAt   DateTime @updatedAt
+  levelId     Int
+
+  level Level @relation(fields: [levelId], references: [id])
+
+  ProblemTags ProblemTag[]
+
+  @@index([levelId, id])
+  @@index([levelId, solvedCount])
+}
+
+model Tag {
+  id           Int    @id
+  key          String @unique
+  name         String
+  problemCount Int
+
+  ProblemTags ProblemTag[]
+}
+
+model ProblemTag {
+  id        Int @id
+  problemId Int
+  tagId     Int
+
+  problem Problem @relation(fields: [problemId], references: [id])
+  tag     Tag     @relation(fields: [tagId], references: [id])
+
+  @@index([tagId, problemId])
+}
