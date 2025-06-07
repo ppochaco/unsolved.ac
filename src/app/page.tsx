@@ -1,5 +1,5 @@
-import { SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant/problem'
-import { prisma } from '@/lib/prisma'
+import { SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant'
+import { prisma } from '@/lib'
 import { SortDirection, SortOption } from '@/types'
 
 import {

@@ -1,6 +1,6 @@
 import { PROBLEMS_PER_PAGE } from '@/constant'
 import { Level } from '@/generated/prisma'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib'
 import { SortDirection, SortOption } from '@/types'
 
 import { ProblemListPaginationButtons } from './pagination-buttons'

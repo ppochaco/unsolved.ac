@@ -6,7 +6,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib'
 import { SortDirection, SortOption } from '@/types'
 
 type Option = {
