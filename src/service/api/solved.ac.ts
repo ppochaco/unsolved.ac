@@ -1,4 +1,5 @@
 import { SolvedAcProblem } from '@/types'
+import { SolvedAcTag } from '@/types'
 
 import { solvedAcApi } from '../instance'
 
@@ -27,6 +28,30 @@ export const levelProblemApi = async ({
       },
     },
   )
+
+  return response.data.items
+}
+
+export const userProblemApi = async ({ userId }: { userId: string }) => {
+  const response = await solvedAcApi.get<SearchProblemResponse>(
+    '/api/v3/search/problem',
+    {
+      params: {
+        query: `s@${userId}`,
+      },
+    },
+  )
+
+  return response.data.items
+}
+
+type TagListResponse = {
+  count: number
+  items: SolvedAcTag[]
+}
+
+export const tagListApi = async () => {
+  const response = await solvedAcApi.get<TagListResponse>('/api/v3/tag/list')
 
   return response.data.items
 }
