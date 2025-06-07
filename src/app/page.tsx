@@ -18,7 +18,8 @@ export default async function Home({
 }: {
   searchParams: { [key: string]: string | undefined }
 }) {
-  const { sort, direction, page } = parseSearchParams(searchParams)
+  const params = await searchParams
+  const { sort, direction, page } = parseSearchParams(params)
 
   // TODO: 필터링 기능 추가하기
   const [levels, problems, count] = await prisma.$transaction([
