@@ -1,5 +1,6 @@
 import { SolvedAcProblem } from '@/types'
 import { SolvedAcTag } from '@/types'
+import { SolvedAcUser } from '@/types/solvedac'
 
 import { solvedAcApi } from '../instance'
 
@@ -54,4 +55,12 @@ export const tagListApi = async () => {
   const response = await solvedAcApi.get<TagListResponse>('/api/v3/tag/list')
 
   return response.data.items
+}
+
+export const userApi = async ({ userId }: { userId: string }) => {
+  const response = await solvedAcApi.get<SolvedAcUser>('/api/v3/user/show', {
+    params: { handle: userId },
+  })
+
+  return response.data
 }
