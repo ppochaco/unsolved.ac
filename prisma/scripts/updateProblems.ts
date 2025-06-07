@@ -1,7 +1,8 @@
+import { RANKS, TIERS, TIER_START_VALUE } from '@/constant'
 import { levelProblemApi } from '@/service/api'
-import { PrismaClient } from '../../src/generated/prisma'
-import { RANKS, TIER_START_VALUE, TIERS } from '@/constant'
 import { SolvedAcProblem, Tier } from '@/types'
+
+import { PrismaClient } from '../../src/generated/prisma'
 
 const prisma = new PrismaClient()
 const MAX_PAGE = 40
