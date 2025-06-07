@@ -1,4 +1,4 @@
-import { SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant'
+import { PROBLEMS_PER_PAGE, SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant'
 import { prisma } from '@/lib'
 import { SortDirection, SortOption } from '@/types'
 
@@ -6,7 +6,8 @@ import {
   Footer,
   Header,
   ProblemFilter,
-  ProblemList,
+  ProblemListPaginationButtons,
+  ProblemListTable,
   SortProblemListButtons,
   ToggleProblemFilterButton,
   UserFilter,
@@ -18,10 +19,24 @@ export default async function Home({
   searchParams: { [key: string]: string | undefined }
 }) {
   const { sort, page, direction } = await searchParams
-  const levels = await prisma.level.findMany()
 
   const validSort = getValidSort(sort)
   const validDirection = getValidDirection(direction)
+  const vaildPage = getValidPage(page)
+
+  // TODO: 필터링 기능 추가하기
+  const [levels, problems, count] = await prisma.$transaction([
+    prisma.level.findMany(),
+    prisma.problem.findMany({
+      where: { levelId: 2 },
+      orderBy: {
+        [validSort]: direction,
+      },
+      take: PROBLEMS_PER_PAGE,
+      skip: PROBLEMS_PER_PAGE * (vaildPage - 1),
+    }),
+    prisma.problem.count({ where: { levelId: 2 } }),
+  ])
 
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
@@ -36,12 +51,10 @@ export default async function Home({
             <ToggleProblemFilterButton />
           </div>
           <SortProblemListButtons sort={validSort} direction={validDirection} />
-          <ProblemList
-            levels={levels}
-            page={getValidPage(page)}
-            sort={validSort}
-            direction={validDirection}
-          />
+          <div className="flex flex-col gap-4 px-4 pb-10">
+            <ProblemListTable problems={problems} levels={levels} />
+            <ProblemListPaginationButtons page={vaildPage} count={count} />
+          </div>
         </div>
       </div>
       <Footer />
