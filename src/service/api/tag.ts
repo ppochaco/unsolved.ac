@@ -1,4 +1,5 @@
 import { SolvedAcTag } from '@/types'
+
 import { solvedAcApi } from '../instance'
 
 type TagListResponse = {

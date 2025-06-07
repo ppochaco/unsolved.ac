@@ -1,4 +1,5 @@
 import { tagListApi } from '@/service/api'
+
 import { PrismaClient } from '../../src/generated/prisma'
 
 const prisma = new PrismaClient()
