@@ -3,23 +3,21 @@
 import { useState } from 'react'
 
 import { ArrowDownIcon, ArrowUpIcon } from '@radix-ui/react-icons'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components'
-import { Problem } from '@/generated/prisma'
 import { cn } from '@/lib/utils'
+import { SortDirection, SortOption } from '@/types'
 
-type SortOptionAccessor = Extract<
-  keyof Problem,
-  'levelId' | 'id' | 'solvedCount'
->
-
-type SortOption = {
+type Option = {
   title: string
-  accessor: SortOptionAccessor
-  direction: 'desc' | 'asc'
+  accessor: SortOption
+  direction: SortDirection
 }
 
-const sortOptions: SortOption[] = [
+type SelectedOption = Pick<Option, 'accessor' | 'direction'>
+
+const options: Option[] = [
   {
     title: '레벨',
     accessor: 'levelId',
@@ -37,34 +35,46 @@ const sortOptions: SortOption[] = [
   },
 ]
 
-type SelectedOption = Pick<SortOption, 'accessor' | 'direction'>
+interface SortProblemListButtonsProps {
+  sort: SortOption
+  direction: SortDirection
+}
 
-export const SortProblemListButtons = () => {
-  const [selectedOption, setSelectedOption] = useState<SelectedOption | null>(
-    null,
-  )
+export const SortProblemListButtons = ({
+  sort,
+  direction,
+}: SortProblemListButtonsProps) => {
+  const router = useRouter()
 
-  const onClickOption = (accessor: SortOptionAccessor) => {
-    setSelectedOption((prev) => {
-      if (prev?.accessor === accessor) {
-        return {
-          accessor,
-          direction: prev.direction === 'desc' ? 'asc' : 'desc',
-        }
-      }
+  const [selectedOption, setSelectedOption] = useState<SelectedOption>({
+    accessor: sort,
+    direction,
+  })
 
-      return {
-        accessor,
-        direction: 'desc',
-      }
-    })
+  const changeSort = (newSort: SortOption, newDirection: SortDirection) => {
+    const params = new URLSearchParams(window.location.search)
+    params.set('sort', newSort)
+    params.set('direction', newDirection)
+    router.push(`${window.location.pathname}?${params}`)
+  }
+
+  const onClickOption = (accessor: SortOption) => {
+    const direction: SortDirection =
+      accessor === selectedOption?.accessor
+        ? selectedOption?.direction === 'desc'
+          ? 'asc'
+          : 'desc'
+        : 'desc'
+
+    setSelectedOption({ accessor, direction })
+    changeSort(accessor, direction)
   }
 
   return (
-    <div className="flex gap-8 py-4">
+    <div className="flex gap-8 px-4 py-4">
       <div className="font-bold">정렬</div>
       <ul className="flex gap-4">
-        {sortOptions.map((option) => {
+        {options.map((option) => {
           const isSelected = selectedOption?.accessor === option.accessor
 
           return (

@@ -1,10 +1,13 @@
+import { SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant/problem'
 import { prisma } from '@/lib/prisma'
+import { SortDirection, SortOption } from '@/types'
 
 import {
   Footer,
   Header,
   ProblemFilter,
   ProblemList,
+  SortProblemListButtons,
   ToggleProblemFilterButton,
   UserFilter,
 } from './components'
@@ -14,9 +17,11 @@ export default async function Home({
 }: {
   searchParams: { [key: string]: string | undefined }
 }) {
-  const { page } = searchParams
-
+  const { sort, page, direction } = await searchParams
   const levels = await prisma.level.findMany()
+
+  const validSort = getValidSort(sort)
+  const validDirection = getValidDirection(direction)
 
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
@@ -30,10 +35,49 @@ export default async function Home({
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
-          <ProblemList levels={levels} page={page ? parseInt(page) : 1} />
+          <SortProblemListButtons sort={validSort} direction={validDirection} />
+          <ProblemList
+            levels={levels}
+            page={getValidPage(page)}
+            sort={validSort}
+            direction={validDirection}
+          />
         </div>
       </div>
       <Footer />
     </div>
   )
+}
+
+function isSortOption(value: string): value is SortOption {
+  return SORT_OPTIONS.includes(value as SortOption)
+}
+
+function getValidSort(value?: string): SortOption {
+  if (value === undefined) return 'solvedCount'
+
+  if (isSortOption(value)) {
+    return value
+  }
+
+  return 'solvedCount'
+}
+
+function isDirection(value: string): value is SortDirection {
+  return SORT_DIRECTIONS.includes(value as SortDirection)
+}
+
+function getValidDirection(value?: string) {
+  if (value === undefined) return 'desc'
+
+  if (isDirection(value)) {
+    return value
+  }
+
+  return 'desc'
+}
+
+function getValidPage(value?: string) {
+  const parsed = parseInt(value || '')
+  return Number.isNaN(parsed) ? 1 : parsed
 }

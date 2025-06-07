@@ -1,6 +1,7 @@
 import { PROBLEMS_PER_PAGE } from '@/constant'
 import { Level } from '@/generated/prisma'
 import { prisma } from '@/lib/prisma'
+import { SortDirection, SortOption } from '@/types'
 
 import { ProblemListPaginationButtons } from './pagination-buttons'
 import { ProblemListTable } from './table'
@@ -8,14 +9,22 @@ import { ProblemListTable } from './table'
 interface ProblemListProps {
   levels: Level[]
   page: number
+  sort: SortOption
+  direction: SortDirection
 }
 
-export const ProblemList = async ({ levels, page }: ProblemListProps) => {
+export const ProblemList = async ({
+  levels,
+  page,
+  sort,
+  direction,
+}: ProblemListProps) => {
+  // TODO. 필터링 추가
   const [problems, count] = await prisma.$transaction([
     prisma.problem.findMany({
       where: { levelId: 2 },
       orderBy: {
-        solvedCount: 'desc',
+        [sort]: direction,
       },
       take: PROBLEMS_PER_PAGE,
       skip: PROBLEMS_PER_PAGE * (page - 1),
