@@ -3,7 +3,6 @@ import { Level } from '@/generated/prisma'
 import { prisma } from '@/lib/prisma'
 
 import { ProblemListPaginationButtons } from './pagination-buttons'
-import { SortProblemListButtons } from './sort-buttons'
 import { ProblemListTable } from './table'
 
 interface ProblemListProps {
@@ -33,7 +32,6 @@ export const ProblemList = async ({ levels, page }: ProblemListProps) => {
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-10">
-      <SortProblemListButtons />
       <ProblemListTable columns={columns} problems={problems} levels={levels} />
       <ProblemListPaginationButtons page={page} count={count} />
     </div>
