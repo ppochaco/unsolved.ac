@@ -1,5 +1,9 @@
-import { RANKS, TIERS, TIER_DISPLAY_NAME, TIER_START_VALUE } from '@/constant'
-
+import {
+  RANKS,
+  TIERS,
+  TIER_DISPLAY_NAME,
+  TIER_START_VALUE,
+} from '../../src/constant'
 import { PrismaClient } from '../../src/generated/prisma'
 
 const prisma = new PrismaClient()
