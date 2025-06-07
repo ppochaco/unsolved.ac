@@ -11,7 +11,7 @@ const roboto = Roboto({
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['500', '600', '700'], // medium, semibold, bold
+  weight: ['400', '500', '600', '700'], // regular, medium, semibold, bold
   variable: '--font-inter',
 })
 

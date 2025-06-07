@@ -9,7 +9,7 @@ import {
 
 export default async function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="font-inter flex min-h-screen flex-col">
       <Header />
       <div className="flex flex-1">
         <div className="hidden xl:flex">
