@@ -1,6 +1,19 @@
 import type { Metadata } from 'next'
+import { Inter, Roboto } from 'next/font/google'
 
 import './globals.css'
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: '700', // bold
+  variable: '--font-roboto',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'], // medium, semibold, bold
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'unsolved.ac - 친구들과 안 푼 백준 문제 찾기',
@@ -14,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={`${roboto.variable} ${inter.variable}`}>
       <body>{children}</body>
     </html>
   )

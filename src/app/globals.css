@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -28,6 +28,9 @@
   --color-primary-800: #6235a2;
   --color-primary-900: #552e8c;
   --color-primary-950: #482777;
+
+  --font-roboto: var(--font-roboto);
+  --font-inter: var(--font-inter);
 }
 
 @theme inline {
