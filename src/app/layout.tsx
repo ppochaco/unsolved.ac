@@ -1,5 +1,8 @@
+import { QueryClientProvider } from '@tanstack/react-query'
 import type { Metadata } from 'next'
 import { Inter, Roboto } from 'next/font/google'
+
+import { queryClient } from '@/lib'
 
 import './globals.css'
 
@@ -28,7 +31,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${roboto.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <QueryClientProvider client={queryClient}>
+        <body>{children}</body>
+      </QueryClientProvider>
     </html>
   )
 }
