@@ -1,5 +1,4 @@
-import { RANKS, TIERS } from '@/constant'
-import { SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant/problem'
+import { RANKS, SORT_DIRECTIONS, SORT_OPTIONS, TIERS } from '@/constant'
 
 export type Tier = (typeof TIERS)[number]
 export type Rank = (typeof RANKS)[number]
