@@ -1,4 +1,8 @@
-export { type SolvedAcProblem, type SolvedAcTag } from './solvedac'
+export {
+  type SolvedAcProblem,
+  type SolvedAcTag,
+  type SolvedAcUser,
+} from './solvedac'
 export {
   type Tier,
   type Rank,
