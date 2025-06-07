@@ -1,3 +1,5 @@
+import { prisma } from '@/lib/prisma'
+
 import {
   Footer,
   Header,
@@ -8,8 +10,9 @@ import {
 } from './components'
 
 export default async function Home() {
+  const levels = await prisma.level.findMany()
   return (
-    <div className="font-inter flex min-h-screen flex-col">
+    <div className="font-inter text-plum-950 flex min-h-screen flex-col">
       <Header />
       <div className="flex flex-1">
         <div className="hidden xl:flex">
@@ -20,7 +23,7 @@ export default async function Home() {
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
-          <ProblemList />
+          <ProblemList levels={levels} />
         </div>
       </div>
       <Footer />
