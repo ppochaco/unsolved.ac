@@ -9,8 +9,15 @@ import {
   UserFilter,
 } from './components'
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined }
+}) {
+  const { page } = searchParams
+
   const levels = await prisma.level.findMany()
+
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
       <Header />
@@ -23,7 +30,7 @@ export default async function Home() {
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
-          <ProblemList levels={levels} />
+          <ProblemList levels={levels} page={page ? parseInt(page) : 1} />
         </div>
       </div>
       <Footer />
