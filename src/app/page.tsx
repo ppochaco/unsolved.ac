@@ -18,11 +18,7 @@ export default async function Home({
 }: {
   searchParams: { [key: string]: string | undefined }
 }) {
-  const { sort, page, direction } = await searchParams
-
-  const validSort = getValidSort(sort)
-  const validDirection = getValidDirection(direction)
-  const vaildPage = getValidPage(page)
+  const { sort, direction, page } = parseSearchParams(searchParams)
 
   // TODO: 필터링 기능 추가하기
   const [levels, problems, count] = await prisma.$transaction([
@@ -30,10 +26,10 @@ export default async function Home({
     prisma.problem.findMany({
       where: { levelId: 2 },
       orderBy: {
-        [validSort]: direction,
+        [sort]: direction,
       },
       take: PROBLEMS_PER_PAGE,
-      skip: PROBLEMS_PER_PAGE * (vaildPage - 1),
+      skip: PROBLEMS_PER_PAGE * (page - 1),
     }),
     prisma.problem.count({ where: { levelId: 2 } }),
   ])
@@ -50,10 +46,10 @@ export default async function Home({
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
-          <SortProblemListButtons sort={validSort} direction={validDirection} />
+          <SortProblemListButtons sort={sort} direction={direction} />
           <div className="flex flex-col gap-4 px-4 pb-10">
             <ProblemListTable problems={problems} levels={levels} />
-            <ProblemListPaginationButtons page={vaildPage} count={count} />
+            <ProblemListPaginationButtons page={page} count={count} />
           </div>
         </div>
       </div>
@@ -62,35 +58,34 @@ export default async function Home({
   )
 }
 
-function isSortOption(value: string): value is SortOption {
-  return SORT_OPTIONS.includes(value as SortOption)
-}
+function parseSearchParams(searchParams: Record<string, string | undefined>) {
+  let sort: SortOption = 'solvedCount'
+  let direction: SortDirection = 'desc'
+  let page = 1
 
-function getValidSort(value?: string): SortOption {
-  if (value === undefined) return 'solvedCount'
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (!value) continue
 
-  if (isSortOption(value)) {
-    return value
+    switch (key) {
+      case 'sort':
+        if (SORT_OPTIONS.includes(value as SortOption)) {
+          sort = value as SortOption
+        }
+        break
+      case 'direction':
+        if (SORT_DIRECTIONS.includes(value as SortDirection)) {
+          direction = value as SortDirection
+        }
+        break
+      case 'page': {
+        const parsed = parseInt(value)
+        if (!isNaN(parsed)) {
+          page = parsed
+        }
+        break
+      }
+    }
   }
 
-  return 'solvedCount'
-}
-
-function isDirection(value: string): value is SortDirection {
-  return SORT_DIRECTIONS.includes(value as SortDirection)
-}
-
-function getValidDirection(value?: string) {
-  if (value === undefined) return 'desc'
-
-  if (isDirection(value)) {
-    return value
-  }
-
-  return 'desc'
-}
-
-function getValidPage(value?: string) {
-  const parsed = parseInt(value || '')
-  return Number.isNaN(parsed) ? 1 : parsed
+  return { sort, direction, page }
 }
