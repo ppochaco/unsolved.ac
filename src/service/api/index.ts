@@ -5,4 +5,6 @@ export {
   levelProblemApi,
 } from './solved.ac'
 
-export { fetchUserInfoApi } from './user'
+export { fetchUserInfoApi, userInfoQueries } from './user'
+
+export { fetchUserProblemPaging, userProblemQueries } from './problem'

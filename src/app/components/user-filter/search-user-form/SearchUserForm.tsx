@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import Image from 'next/image'
@@ -8,6 +8,7 @@ import Image from 'next/image'
 import {
   Button,
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -64,11 +65,11 @@ export const SearchUserForm = ({
   }
 
   const selectUser = (user: User) => {
-    addUser(user)
     setUser(null)
     if (inputRef.current) {
       inputRef.current.value = ''
     }
+    addUser(user)
   }
 
   return (
@@ -89,9 +90,24 @@ export const SearchUserForm = ({
       )}
 
       {user && (
-        <Card className="absolute z-10 mt-2 w-fit min-w-72 gap-2 px-4 shadow-2xl">
-          <CardHeader className="px-0">
-            <CardTitle>유저를 선택해주세요</CardTitle>
+        <Card className="absolute z-10 mt-2 w-fit min-w-72 gap-2 px-4 pt-0 shadow-2xl">
+          <CardHeader className="px-0 pt-2">
+            <CardTitle className="pt-3">유저를 선택해주세요</CardTitle>
+            <CardAction>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setUser(null)
+                  if (inputRef.current) {
+                    inputRef.current.value = ''
+                  }
+                }}
+                className="group rounded-full"
+              >
+                <Cross2Icon className="text-plum-200 group-hover:text-plum-400 size-5" />
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent className="px-0">
             <Button

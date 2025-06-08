@@ -9,12 +9,14 @@ interface SelectUserProps {
   users: User[]
   deleteUser: (userId: string) => void
   toggleUser: (userId: string) => void
+  progress: number
 }
 
 export const SelectUser = ({
   users,
   deleteUser,
   toggleUser,
+  progress,
 }: SelectUserProps) => {
   return (
     <div className="flex w-full flex-col gap-2 px-4 pb-5">
@@ -25,7 +27,7 @@ export const SelectUser = ({
         </span>
       </div>
       <div className="flex w-full gap-6 overflow-x-auto">
-        {users.map((user) => (
+        {users.map((user, index) => (
           <Card key={user.userId} className="gap-0 py-2">
             <CardHeader className="px-2">
               <CardAction>
@@ -43,7 +45,17 @@ export const SelectUser = ({
               onClick={() => toggleUser(user.userId)}
               className="group flex h-38 w-40 flex-col items-center gap-2 px-2 hover:cursor-pointer"
             >
-              {user.isSelected ? (
+              {index === users.length - 1 &&
+              user.isSelected &&
+              progress !== 100 ? (
+                <div className="relative size-21 overflow-hidden rounded-full bg-white">
+                  <CheckIcon className="absolute inset-0 z-5 m-auto size-21 text-white" />
+                  <div
+                    className="bg-primary absolute bottom-0 left-0 z-0 w-full transition-all duration-300"
+                    style={{ height: `${progress}%` }}
+                  />
+                </div>
+              ) : user.isSelected ? (
                 <CheckIcon className="bg-primary size-21 rounded-full text-white" />
               ) : (
                 <Image
