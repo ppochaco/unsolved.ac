@@ -12,8 +12,14 @@ async function main() {
       const name = `${tier}${rank ? ` ${rank}` : ''}`
       const imageUrl = `https://static.solved.ac/tier_small/${id}.svg`
 
-      await prisma.level.create({
-        data: { id, name, imageUrl },
+      await prisma.level.upsert({
+        where: { id },
+        update: {},
+        create: {
+          id,
+          name,
+          imageUrl,
+        },
       })
 
       id++
