@@ -44,7 +44,7 @@ export default async function Home({
         <div className="hidden xl:flex">
           <ProblemFilter />
         </div>
-        <div className="flex w-full flex-col">
+        <div className="flex w-full min-w-0 flex-col">
           <UserFilter levelImages={levelImages} />
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />

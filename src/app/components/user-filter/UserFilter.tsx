@@ -8,6 +8,7 @@ import { queryClient } from '@/lib'
 import { User } from '@/types'
 
 import { SearchUserForm } from './search-user-form'
+import { SelectUser } from './select-user'
 
 interface UserFilterProps {
   levelImages: Map<number, string>
@@ -26,13 +27,30 @@ export const UserFilter = ({ levelImages }: UserFilterProps) => {
     })
   }
 
+  const deleteUser = (userId: string) => {
+    setUsers((prev) => prev.filter((user) => user.userId !== userId))
+  }
+
+  const toggleUser = (userId: string) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.userId === userId) {
+          return { ...user, isSelected: !user.isSelected }
+        }
+        return user
+      }),
+    )
+  }
+
   return (
-    <section className="flex h-70 flex-col items-center">
+    <section className="flex h-fit w-full flex-col items-center">
       <QueryClientProvider client={queryClient}>
         <SearchUserForm levelImages={levelImages} addUser={addUser} />
-        {users.map((user) => (
-          <div key={user.userId}>{user.userId}</div>
-        ))}
+        <SelectUser
+          users={users}
+          deleteUser={deleteUser}
+          toggleUser={toggleUser}
+        />
       </QueryClientProvider>
     </section>
   )

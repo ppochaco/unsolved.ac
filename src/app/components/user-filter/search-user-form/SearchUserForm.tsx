@@ -37,6 +37,7 @@ export const SearchUserForm = ({
         userId: info.handle,
         imageUrl: info.profileImageUrl ?? DEFAULT_USER_IMAGE_URL,
         levelId: info.tier,
+        isSelected: true,
       })
     },
     onError: (err) => {
