@@ -1,11 +1,11 @@
 export const TIERS = [
-  'UNRATED',
-  'BRONZE',
-  'SILVER',
-  'GOLD',
-  'PLATINUM',
-  'DIAMOND',
-  'RUBY',
-  'MASTER',
+  'Unrated',
+  'Bronze',
+  'Silver',
+  'Gold',
+  'Platinum',
+  'Diamond',
+  'Ruby',
+  'Master',
 ] as const
 export const RANKS = ['V', 'Ⅳ', 'Ⅲ', 'Ⅱ', 'I'] as const
