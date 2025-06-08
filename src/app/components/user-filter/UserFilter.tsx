@@ -28,6 +28,17 @@ export const UserFilter = ({ levelImages }: UserFilterProps) => {
     action: 'add' | 'remove'
   } | null>(null)
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const hasUserId = params.has('userId')
+
+    if (hasUserId) {
+      params.delete('userId')
+      router.replace(`${window.location.pathname}?${params}`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const { mutate: updateUserProblemIds } = useMutation({
     mutationFn: ({
       userId,
@@ -37,9 +48,7 @@ export const UserFilter = ({ levelImages }: UserFilterProps) => {
       problemIds: number[]
     }) => updateUserProblemIdsApi(userId, problemIds),
     onSuccess: (result) => {
-      const params = new URLSearchParams(window.location.search)
-      params.append('userId', result.userId)
-      router.push(`${window.location.pathname}?${params}`)
+      setUrlUpdateTarget({ userId: result.userId, action: 'add' })
     },
   })
 
