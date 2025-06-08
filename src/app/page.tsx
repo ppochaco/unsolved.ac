@@ -1,4 +1,10 @@
-import { PROBLEMS_PER_PAGE, SORT_DIRECTIONS, SORT_OPTIONS } from '@/constant'
+import {
+  END_LEVEL_ID,
+  PROBLEMS_PER_PAGE,
+  SORT_DIRECTIONS,
+  SORT_OPTIONS,
+  START_LEVEL_ID,
+} from '@/constant'
 import { prisma } from '@/lib'
 import { ColoredProblem, SortDirection, SortOption } from '@/types'
 
@@ -20,28 +26,44 @@ export default async function Home({
   searchParams: { [key: string]: string | undefined }
 }) {
   const params = await searchParams
-  const { sort, direction, page, userId } = parseSearchParams(params)
+  const { sort, direction, page, userId, startLevel, endLevel } =
+    parseSearchParams(params)
 
   // TODO: 필터링 기능 추가하기
-  const [levels, problems, count, userProblemIds] = await prisma.$transaction([
-    prisma.level.findMany(),
-    prisma.problem.findMany({
-      where: { levelId: 7 },
-      orderBy: {
-        [sort]: direction,
-      },
-      take: PROBLEMS_PER_PAGE,
-      skip: PROBLEMS_PER_PAGE * (page - 1),
-    }),
-    prisma.problem.count({ where: { levelId: 7 } }),
-    prisma.userProblemId.findMany({
-      where: {
-        userId: {
-          in: userId,
+  // TODO: 문제 데이터 추가하기
+  const [levels, problems, count, userProblemIds, problemLevels] =
+    await prisma.$transaction([
+      prisma.level.findMany(),
+      prisma.problem.findMany({
+        where: {
+          levelId: {
+            gte: startLevel,
+            lte: endLevel,
+          },
         },
-      },
-    }),
-  ])
+        orderBy: {
+          [sort]: direction,
+        },
+        take: PROBLEMS_PER_PAGE,
+        skip: PROBLEMS_PER_PAGE * (page - 1),
+      }),
+      prisma.problem.count({ where: { levelId: 7 } }),
+      prisma.userProblemId.findMany({
+        where: {
+          userId: {
+            in: userId,
+          },
+        },
+      }),
+      prisma.level.findMany({
+        where: {
+          id: {
+            gte: START_LEVEL_ID, // 실버 5
+            lte: END_LEVEL_ID, // 골드 1
+          },
+        },
+      }),
+    ])
 
   const unionSet = new Set<number>() // 한 명이라도 solved
   let intersectionSet = new Set<number>() // 모두 solved
@@ -78,7 +100,7 @@ export default async function Home({
       <Header />
       <div className="flex flex-1">
         <div className="hidden xl:flex">
-          <ProblemFilter />
+          <ProblemFilter levels={problemLevels} />
         </div>
         <div className="flex w-full min-w-0 flex-col">
           <SelectUserQueryClientProvider>
@@ -109,6 +131,8 @@ function parseSearchParams(
   let direction: SortDirection = 'desc'
   let page = 1
   let userId: string[] = []
+  let startLevel = START_LEVEL_ID
+  let endLevel = END_LEVEL_ID
 
   for (const [key, value] of Object.entries(searchParams)) {
     if (!value) continue
@@ -125,18 +149,23 @@ function parseSearchParams(
         }
         break
       case 'page': {
-        const parsed = parseInt(value as string)
-        if (!isNaN(parsed)) {
-          page = parsed
-        }
+        page = Number.isNaN(Number(value)) ? page : Number(value)
         break
       }
       case 'userId': {
         userId = Array.isArray(value) ? value : [value]
         break
       }
+      case 'startLevel': {
+        startLevel = Number.isNaN(Number(value)) ? startLevel : Number(value)
+        break
+      }
+      case 'endLevel': {
+        endLevel = Number.isNaN(Number(value)) ? endLevel : Number(value)
+        break
+      }
     }
   }
 
-  return { sort, direction, page, userId }
+  return { sort, direction, page, userId, startLevel, endLevel }
 }
