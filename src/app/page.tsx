@@ -23,11 +23,11 @@ import {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: Promise<{ id: string }>
 }) {
   const params = await searchParams
   const { sort, direction, page, userId, startLevel, endLevel, tag } =
-    parseSearchParams(params)
+    parseSearchParams({ params })
 
   // TODO: 필터링 기능 추가하기
   // TODO: 문제 데이터 추가하기
@@ -136,9 +136,7 @@ export default async function Home({
   )
 }
 
-function parseSearchParams(
-  searchParams: Record<string, string | string[] | undefined>,
-) {
+function parseSearchParams({ params }: { params: { id: string } }) {
   let sort: SortOption = 'solvedCount'
   let direction: SortDirection = 'desc'
   let page = 1
@@ -147,7 +145,7 @@ function parseSearchParams(
   let endLevel = END_LEVEL_ID
   let tag = null
 
-  for (const [key, value] of Object.entries(searchParams)) {
+  for (const [key, value] of Object.entries(params)) {
     if (!value) continue
 
     switch (key) {

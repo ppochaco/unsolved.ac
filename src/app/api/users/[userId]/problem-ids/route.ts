@@ -4,12 +4,15 @@ import { PrismaClient } from '../../../../../generated/prisma'
 
 const prisma = new PrismaClient()
 
-type UserProblemIdsParams = {
-  params: { userId: string }
-}
+export async function POST(req: NextRequest) {
+  const pathname = req.nextUrl.pathname
+  const match = pathname.match(/\/api\/users\/([^/]+)\/problem-ids/)
+  const userId = match?.[1]
 
-export async function POST(req: NextRequest, { params }: UserProblemIdsParams) {
-  const { userId } = params
+  if (!userId) {
+    return NextResponse.json({ error: 'userId 파싱 실패' }, { status: 400 })
+  }
+
   const { problemIds } = await req.json()
 
   await prisma.userProblemId.upsert({
