@@ -33,17 +33,26 @@ export const levelProblemApi = async ({
   return response.data.items
 }
 
-export const userProblemApi = async ({ userId }: { userId: string }) => {
+type UserProblemRequestParams = {
+  userId: string
+  page: number
+}
+
+export const userProblemApi = async ({
+  userId,
+  page,
+}: UserProblemRequestParams) => {
   const response = await solvedAcApi.get<SearchProblemResponse>(
     '/api/v3/search/problem',
     {
       params: {
         query: `s@${userId}`,
+        page,
       },
     },
   )
 
-  return response.data.items
+  return response.data
 }
 
 type TagListResponse = {
