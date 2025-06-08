@@ -8,6 +8,7 @@ import {
   ProblemFilter,
   ProblemListPaginationButtons,
   ProblemListTable,
+  SelectUserQueryClientProvider,
   SortProblemListButtons,
   ToggleProblemFilterButton,
   UserFilter,
@@ -45,7 +46,9 @@ export default async function Home({
           <ProblemFilter />
         </div>
         <div className="flex w-full min-w-0 flex-col">
-          <UserFilter levelImages={levelImages} />
+          <SelectUserQueryClientProvider>
+            <UserFilter levelImages={levelImages} />
+          </SelectUserQueryClientProvider>
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
