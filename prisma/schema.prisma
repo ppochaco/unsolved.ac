@@ -15,8 +15,7 @@ datasource db {
 }
 
 model Level {
-  id       Int    @id @default(autoincrement())
-  value    Int    @unique
+  id       Int    @id
   name     String @unique
   imageUrl String
 

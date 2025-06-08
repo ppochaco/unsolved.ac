@@ -8,9 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "update-tags": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateTags.ts",
-    "update-silver-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts SILVER",
-    "update-gold-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts GOLD",
-    "update-platinum-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts PLATINUM"
+    "update-silver-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Silver",
+    "update-gold-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Gold",
+    "update-platinum-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Platinum"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",

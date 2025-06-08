@@ -1,4 +1,4 @@
-import { RANKS, TIERS, TIER_START_VALUE } from '@/constant'
+import { RANKS, TIERS } from '@/constant'
 import { levelProblemApi } from '@/service/api'
 import { SolvedAcProblem, Tier } from '@/types'
 
@@ -10,7 +10,7 @@ const MAX_PAGE = 40
 const rawTier = process.argv[2]
 
 if (!isTier(rawTier)) {
-  console.error('티어를 포함해서 다시 실행해주세요.(SILVER, GOLD, PLATINUM)')
+  console.error('티어를 포함해서 다시 실행해주세요.(Silver, Gold, Platinum)')
   process.exit(1)
 }
 
@@ -18,7 +18,7 @@ const tier = rawTier
 
 async function upsertProblem(problem: SolvedAcProblem) {
   const level = await prisma.level.findUnique({
-    where: { value: problem.level },
+    where: { id: problem.level },
   })
 
   if (!level) {
@@ -78,9 +78,17 @@ async function upsertProblemTags(problem: SolvedAcProblem) {
 
 async function processTier(tier: Tier) {
   for (let i = 0; i < RANKS.length; i++) {
-    const value = i + TIER_START_VALUE[tier]
+    const level = await prisma.level.findUnique({
+      where: { name: `${tier} ${RANKS[i]}` },
+    })
+
+    if (!level) {
+      console.warn(`${tier} ${RANKS[i]}을 Level에서 찾을 수 없습니다.`)
+      return
+    }
+
     for (let page = 1; page <= MAX_PAGE; page++) {
-      const problems = await levelProblemApi({ value, page })
+      const problems = await levelProblemApi({ value: level.id, page })
 
       if (problems.length === 0) break
 
