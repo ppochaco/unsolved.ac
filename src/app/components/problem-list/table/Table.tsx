@@ -1,5 +1,6 @@
 import Image from 'next/image'
 
+import { DEFAULT_TIER_SVG } from '@/constant'
 import { Problem } from '@/generated/prisma'
 
 interface ProblemListTableProps {
@@ -35,7 +36,7 @@ export const ProblemListTable = ({
             <td className="w-10 py-2.5">
               <div className="flex items-center justify-center">
                 <Image
-                  src={levelImages.get(problem.levelId) ?? ''}
+                  src={levelImages.get(problem.levelId) ?? DEFAULT_TIER_SVG}
                   width={16}
                   height={16}
                   className="object-contain"

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-import { AvatarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import Image from 'next/image'
@@ -13,6 +13,7 @@ import {
   CardTitle,
   Input,
 } from '@/components'
+import { DEFAULT_TIER_SVG, DEFAULT_USER_IMAGE_URL } from '@/constant'
 import { fetchUserInfoApi } from '@/service'
 import { User } from '@/types'
 
@@ -34,7 +35,7 @@ export const SearchUserForm = ({
     onSuccess: (info) => {
       setUser({
         userId: info.handle,
-        imageUrl: info.profileImageUrl,
+        imageUrl: info.profileImageUrl ?? DEFAULT_USER_IMAGE_URL,
         levelId: info.tier,
       })
     },
@@ -71,7 +72,7 @@ export const SearchUserForm = ({
 
   return (
     <form onSubmit={(e) => e.preventDefault()}>
-      <div className="flex gap-2">
+      <div className="relative flex gap-2">
         <Input
           placeholder="baekjoon 아이디"
           ref={inputRef}
@@ -87,40 +88,32 @@ export const SearchUserForm = ({
       )}
 
       {user && (
-        <Card className="mt-2">
-          <CardHeader>
+        <Card className="absolute z-10 mt-2 w-fit min-w-72 gap-2 px-4 shadow-2xl">
+          <CardHeader className="px-0">
             <CardTitle>유저를 선택해주세요</CardTitle>
-            <CardContent className="px-0 pt-1">
-              <Button
-                variant="secondary"
-                onClick={() => selectUser(user)}
-                className="flex gap-1"
-              >
-                <Image
-                  src={
-                    levelImages.get(user.levelId) ?? levelImages.get(0) ?? ''
-                  }
-                  width={18}
-                  height={18}
-                  alt={`${user.userId} tier image`}
-                />
-
-                {user.imageUrl ? (
-                  <Image
-                    src={user.imageUrl}
-                    width={24}
-                    height={24}
-                    className="rounded-full object-contain"
-                    alt={`${user.userId} profile image`}
-                  />
-                ) : (
-                  <AvatarIcon className="bg-plum-50 text-plum-300 size-6 rounded-full" />
-                )}
-
-                <div className="text-lg font-semibold">{user.userId}</div>
-              </Button>
-            </CardContent>
           </CardHeader>
+          <CardContent className="px-0">
+            <Button
+              variant="secondary"
+              onClick={() => selectUser(user)}
+              className="flex gap-1 px-2"
+            >
+              <Image
+                src={levelImages.get(user.levelId) ?? DEFAULT_TIER_SVG}
+                width={18}
+                height={18}
+                alt={`${user.userId} tier image`}
+              />
+              <Image
+                src={user.imageUrl}
+                width={24}
+                height={24}
+                className="rounded-full object-contain"
+                alt={`${user.userId} profile image`}
+              />
+              <div className="text-lg font-semibold">{user.userId}</div>
+            </Button>
+          </CardContent>
         </Card>
       )}
     </form>

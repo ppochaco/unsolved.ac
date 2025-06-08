@@ -1,5 +1,5 @@
 export type User = {
   userId: string
-  imageUrl: string | null
+  imageUrl: string
   levelId: number
 }
