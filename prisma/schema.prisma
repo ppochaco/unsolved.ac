@@ -56,3 +56,9 @@ model ProblemTag {
 
   @@index([tagId, problemId])
 }
+
+model UserProblemId {
+  userId     String   @id
+  problemIds Int[]
+  updatedAt  DateTime @updatedAt
+}
