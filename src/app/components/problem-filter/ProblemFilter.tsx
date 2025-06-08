@@ -1,24 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ReloadIcon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components'
 import { END_LEVEL, START_LEVEL } from '@/constant'
-import { Level } from '@/generated/prisma'
+import { Level, Tag } from '@/generated/prisma'
 
 import { LevelSelect } from './level-select'
+import { TagSelect } from './tag-select'
 
 interface ProblemFilterProps {
   levels: Level[]
+  tags: Tag[]
 }
 
-export const ProblemFilter = ({ levels }: ProblemFilterProps) => {
+export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
   const router = useRouter()
   const [startLevel, setStartLevel] = useState<string>(START_LEVEL)
   const [endLevel, setEndLevel] = useState<string>(END_LEVEL)
+  const [tag, setTag] = useState<string>()
 
   const getLevelId = (levelName: string) => {
     return levels.find((level) => level.name === levelName)?.id ?? 0
@@ -31,18 +34,41 @@ export const ProblemFilter = ({ levels }: ProblemFilterProps) => {
     const params = new URLSearchParams(window.location.search)
     params.set('startLevel', String(startId))
     params.set('endLevel', String(endId))
+    if (tag) params.set('tag', tag)
     router.push(`${window.location.pathname}?${params.toString()}`)
   }
 
   const resetFilter = () => {
     setStartLevel(START_LEVEL)
     setEndLevel(END_LEVEL)
+    setTag(undefined)
 
     const params = new URLSearchParams(window.location.search)
     params.delete('startLevel')
     params.delete('endLevel')
+    params.delete('tag')
     router.push(`${window.location.pathname}?${params}`)
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+
+    if (params.has('tag')) {
+      params.delete('tag')
+    }
+
+    if (params.has('startLevel')) {
+      params.delete('startLevel')
+    }
+
+    if (params.has('endLevel')) {
+      params.delete('endLevel')
+    }
+
+    router.replace(`${window.location.pathname}?${params}`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="flex h-full w-xs flex-col gap-5 p-4">
       <div className="flex items-center justify-between">
@@ -66,10 +92,14 @@ export const ProblemFilter = ({ levels }: ProblemFilterProps) => {
             selectLevel={setEndLevel}
           />
         </div>
-        <Button onClick={applyFilter} className="w-full font-normal">
-          설정
-        </Button>
       </div>
+      <div className="flex flex-col gap-4">
+        <div>태그</div>
+        <TagSelect tags={tags} value={tag} selectTag={setTag} />
+      </div>
+      <Button onClick={applyFilter} className="w-full font-normal">
+        설정
+      </Button>
     </div>
   )
 }

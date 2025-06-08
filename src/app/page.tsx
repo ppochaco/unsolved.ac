@@ -26,12 +26,12 @@ export default async function Home({
   searchParams: { [key: string]: string | undefined }
 }) {
   const params = await searchParams
-  const { sort, direction, page, userId, startLevel, endLevel } =
+  const { sort, direction, page, userId, startLevel, endLevel, tag } =
     parseSearchParams(params)
 
   // TODO: 필터링 기능 추가하기
   // TODO: 문제 데이터 추가하기
-  const [levels, problems, count, userProblemIds, problemLevels] =
+  const [levels, problems, count, userProblemIds, problemLevels, tags] =
     await prisma.$transaction([
       prisma.level.findMany(),
       prisma.problem.findMany({
@@ -40,6 +40,17 @@ export default async function Home({
             gte: startLevel,
             lte: endLevel,
           },
+          ...(tag
+            ? {
+                ProblemTags: {
+                  some: {
+                    tag: {
+                      key: tag,
+                    },
+                  },
+                },
+              }
+            : {}),
         },
         orderBy: {
           [sort]: direction,
@@ -63,6 +74,7 @@ export default async function Home({
           },
         },
       }),
+      prisma.tag.findMany(),
     ])
 
   const unionSet = new Set<number>() // 한 명이라도 solved
@@ -100,7 +112,7 @@ export default async function Home({
       <Header />
       <div className="flex flex-1">
         <div className="hidden xl:flex">
-          <ProblemFilter levels={problemLevels} />
+          <ProblemFilter levels={problemLevels} tags={tags} />
         </div>
         <div className="flex w-full min-w-0 flex-col">
           <SelectUserQueryClientProvider>
@@ -133,6 +145,7 @@ function parseSearchParams(
   let userId: string[] = []
   let startLevel = START_LEVEL_ID
   let endLevel = END_LEVEL_ID
+  let tag = null
 
   for (const [key, value] of Object.entries(searchParams)) {
     if (!value) continue
@@ -164,8 +177,12 @@ function parseSearchParams(
         endLevel = Number.isNaN(Number(value)) ? endLevel : Number(value)
         break
       }
+      case 'tag': {
+        tag = value as string
+        break
+      }
     }
   }
 
-  return { sort, direction, page, userId, startLevel, endLevel }
+  return { sort, direction, page, userId, startLevel, endLevel, tag }
 }
