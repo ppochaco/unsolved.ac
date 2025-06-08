@@ -1,32 +1,35 @@
-import { SolvedAcProblem } from '@/types'
+import { queryOptions } from '@tanstack/react-query'
+import axios from 'axios'
 
-import { solvedAcApi } from '../instance'
+import { PROBLEMS_PER_PAGE } from '@/constant'
 
-type SearchProblemRequestParams = {
-  value: number
-  page: number
-}
-
-type SearchProblemResponse = {
+type UserProblemResponse = {
   count: number
-  items: SolvedAcProblem[]
+  problemIds: number[]
 }
 
-export const levelProblemApi = async ({
-  value,
-  page,
-}: SearchProblemRequestParams) => {
-  const response = await solvedAcApi.get<SearchProblemResponse>(
-    '/api/v3/search/problem',
-    {
-      params: {
-        query: `(*${value}..${value})`,
-        page,
-        sort: 'solved',
-        direction: 'desc',
-      },
-    },
-  )
+export const fetchUserProblemPaging = async (userId: string, page: number) => {
+  const response = await axios.get<UserProblemResponse>('/api/problems', {
+    params: { userId, page },
+  })
+  const totalPage = Math.ceil(response.data.count / PROBLEMS_PER_PAGE)
 
-  return response.data.items
+  return {
+    problems: response.data,
+    nextPageToken: page < totalPage ? page + 1 : undefined,
+  }
+}
+
+export const userProblemQueries = {
+  all: () => ['user', 'problem'],
+  listAllKey: (userId: string) => [...userProblemQueries.all(), userId],
+  listKey: (userId: string, page: number) => [
+    ...userProblemQueries.listAllKey(userId),
+    page,
+  ],
+  list: (userId: string, page: number) =>
+    queryOptions({
+      queryKey: userProblemQueries.listKey(userId, page),
+      queryFn: () => fetchUserProblemPaging(userId, page),
+    }),
 }

@@ -1,27 +1,22 @@
-import {
-  RANKS,
-  TIERS,
-  TIER_DISPLAY_NAME,
-  TIER_START_VALUE,
-} from '../../src/constant'
+import { RANKS, TIERS } from '../../src/constant'
 import { PrismaClient } from '../../src/generated/prisma'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  let value = TIER_START_VALUE['SILVER']
-
+  let id = 0
   for (const tier of TIERS) {
-    for (const rank of RANKS) {
+    const ranks = tier === 'Unrated' || tier === 'Master' ? [''] : RANKS
+
+    for (const rank of ranks) {
+      const name = `${tier}${rank ? ` ${rank}` : ''}`
+      const imageUrl = `https://static.solved.ac/tier_small/${id}.svg`
+
       await prisma.level.create({
-        data: {
-          value,
-          name: `${TIER_DISPLAY_NAME[tier]} ${rank}`,
-          imageUrl: `https://static.solved.ac/tier_small/${value}.svg`,
-        },
+        data: { id, name, imageUrl },
       })
 
-      value++
+      id++
     }
   }
 }

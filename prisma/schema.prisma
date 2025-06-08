@@ -15,8 +15,7 @@ datasource db {
 }
 
 model Level {
-  id       Int    @id @default(autoincrement())
-  value    Int    @unique
+  id       Int    @id
   name     String @unique
   imageUrl String
 
@@ -56,4 +55,10 @@ model ProblemTag {
   tag     Tag     @relation(fields: [tagId], references: [id])
 
   @@index([tagId, problemId])
+}
+
+model UserProblemId {
+  userId     String   @id
+  problemIds Int[]
+  updatedAt  DateTime @updatedAt
 }
