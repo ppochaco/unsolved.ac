@@ -1,15 +1,15 @@
 import Image from 'next/image'
 
-import { Level, Problem } from '@/generated/prisma'
+import { Problem } from '@/generated/prisma'
 
 interface ProblemListTableProps {
   problems: Problem[]
-  levels: Level[]
+  levelImages: Map<number, string>
 }
 
 export const ProblemListTable = ({
   problems,
-  levels,
+  levelImages,
 }: ProblemListTableProps) => {
   const columns = [
     { header: '레벨', accessor: 'level' },
@@ -17,8 +17,6 @@ export const ProblemListTable = ({
     { header: '제목', accessor: 'title' },
     { header: '푼 사람 수', accessor: 'solvedCount' },
   ]
-
-  const levelImages = new Map(levels.map((l) => [l.id, l.imageUrl]))
 
   return (
     <table className="w-full">

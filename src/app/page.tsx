@@ -25,15 +25,17 @@ export default async function Home({
   const [levels, problems, count] = await prisma.$transaction([
     prisma.level.findMany(),
     prisma.problem.findMany({
-      where: { levelId: 2 },
+      where: { levelId: 7 },
       orderBy: {
         [sort]: direction,
       },
       take: PROBLEMS_PER_PAGE,
       skip: PROBLEMS_PER_PAGE * (page - 1),
     }),
-    prisma.problem.count({ where: { levelId: 2 } }),
+    prisma.problem.count({ where: { levelId: 7 } }),
   ])
+
+  const levelImages = new Map(levels.map((l) => [l.id, l.imageUrl]))
 
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
@@ -43,13 +45,13 @@ export default async function Home({
           <ProblemFilter />
         </div>
         <div className="flex w-full flex-col">
-          <UserFilter />
+          <UserFilter levelImages={levelImages} />
           <div className="flex xl:hidden">
             <ToggleProblemFilterButton />
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
           <div className="flex flex-col gap-4 px-4 pb-10">
-            <ProblemListTable problems={problems} levels={levels} />
+            <ProblemListTable problems={problems} levelImages={levelImages} />
             <ProblemListPaginationButtons page={page} count={count} />
           </div>
         </div>
