@@ -11,4 +11,4 @@ export {
   type SortDirection,
 } from './constants'
 
-export { type User } from './user'
+export { type User, type ColoredProblem } from './common'

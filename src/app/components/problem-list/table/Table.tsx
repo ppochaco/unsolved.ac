@@ -1,10 +1,11 @@
 import Image from 'next/image'
 
 import { DEFAULT_TIER_SVG } from '@/constant'
-import { Problem } from '@/generated/prisma'
+import { cn } from '@/lib'
+import { ColoredProblem } from '@/types'
 
 interface ProblemListTableProps {
-  problems: Problem[]
+  problems: ColoredProblem[]
   levelImages: Map<number, string>
 }
 
@@ -44,7 +45,15 @@ export const ProblemListTable = ({
                 />
               </div>
             </td>
-            <td className="w-24 py-2.5">{problem.id}</td>
+            <td
+              className={cn(
+                'w-24 py-2.5 font-semibold',
+                problem.color === 'purple' && 'text-primary',
+                problem.color === 'gray' && 'text-plum-400',
+              )}
+            >
+              {problem.id}
+            </td>
             <td className="py-2.5">{problem.title}</td>
             <td className="w-20 py-2.5 text-end">{problem.solvedCount}</td>
           </tr>
