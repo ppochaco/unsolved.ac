@@ -6,6 +6,7 @@ import {
   SORT_OPTIONS,
   START_LEVEL_ID,
 } from '@/constant'
+import { Prisma } from '@/generated/prisma'
 import { prisma } from '@/lib'
 import { ColoredProblem, SortDirection, SortOption } from '@/types'
 
@@ -30,34 +31,36 @@ export default async function Home({
   const { sort, direction, page, userId, startLevel, endLevel, tag } =
     parseSearchParams({ params })
 
+  const problemQuery: Prisma.ProblemWhereInput = {
+    levelId: {
+      gte: startLevel < endLevel ? startLevel : endLevel,
+      lte: startLevel < endLevel ? endLevel : startLevel,
+    },
+    ...(tag
+      ? {
+          ProblemTags: {
+            some: {
+              tag: {
+                key: tag,
+              },
+            },
+          },
+        }
+      : {}),
+  }
+
   const [levels, problems, count, userProblemIds, problemLevels, tags] =
     await prisma.$transaction([
       prisma.level.findMany(),
       prisma.problem.findMany({
-        where: {
-          levelId: {
-            gte: startLevel < endLevel ? startLevel : endLevel,
-            lte: startLevel < endLevel ? endLevel : startLevel,
-          },
-          ...(tag
-            ? {
-                ProblemTags: {
-                  some: {
-                    tag: {
-                      key: tag,
-                    },
-                  },
-                },
-              }
-            : {}),
-        },
+        where: problemQuery,
         orderBy: {
           [sort]: direction,
         },
         take: PROBLEMS_PER_PAGE,
         skip: PROBLEMS_PER_PAGE * (page - 1),
       }),
-      prisma.problem.count({ where: { levelId: 7 } }),
+      prisma.problem.count({ where: problemQuery }),
       prisma.userProblemId.findMany({
         where: {
           userId: {
