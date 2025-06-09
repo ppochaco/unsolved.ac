@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { DEFAULT_TIER_SVG } from '@/constant'
 import { cn } from '@/lib'
@@ -35,7 +36,10 @@ export const ProblemListTable = ({
         {problems.map((problem) => (
           <tr key={problem.id} className="w-full border-b">
             <td className="w-10 py-2.5">
-              <div className="flex items-center justify-center">
+              <Link
+                href={`https://www.acmicpc.net/problem/${problem.id}`}
+                className="flex items-center justify-center"
+              >
                 <Image
                   src={levelImages.get(problem.levelId) ?? DEFAULT_TIER_SVG}
                   width={24}
@@ -43,18 +47,28 @@ export const ProblemListTable = ({
                   className="h-5 w-5"
                   alt={`solved.ac ${problem.levelId} tier`}
                 />
-              </div>
+              </Link>
             </td>
-            <td
-              className={cn(
-                'w-24 py-2.5 font-semibold',
-                problem.color === 'purple' && 'text-primary',
-                problem.color === 'gray' && 'text-plum-400',
-              )}
-            >
-              {problem.id}
+            <td className="w-24 py-2.5 font-semibold">
+              <Link
+                href={`https://www.acmicpc.net/problem/${problem.id}`}
+                className={cn(
+                  'border-plum-950 hover:border-b-1',
+                  problem.color === 'purple' && 'text-primary border-primary',
+                  problem.color === 'gray' && 'text-plum-400 border-gary',
+                )}
+              >
+                {problem.id}
+              </Link>
             </td>
-            <td className="py-2.5">{problem.title}</td>
+            <td className="py-2.5">
+              <Link
+                href={`https://www.acmicpc.net/problem/${problem.id}`}
+                className="border-plum-950 hover:border-b-1"
+              >
+                {problem.title}
+              </Link>
+            </td>
             <td className="w-20 py-2.5 text-end">{problem.solvedCount}</td>
           </tr>
         ))}
