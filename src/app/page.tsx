@@ -112,12 +112,15 @@ export default async function Home({
         <div className="hidden xl:flex">
           <ProblemFilter levels={problemLevels} tags={tags} />
         </div>
-        <div className="flex w-full min-w-0 flex-col">
+        <div className="flex w-full min-w-0 flex-col px-2">
           <SelectUserQueryClientProvider>
             <UserFilter levelImages={levelImages} />
           </SelectUserQueryClientProvider>
-          <div className="flex xl:hidden">
-            <ProblemFilterSheet levels={problemLevels} tags={tags} />
+          <div className="flex items-center">
+            <div className="flex xl:hidden">
+              <ProblemFilterSheet levels={problemLevels} tags={tags} />
+            </div>
+            <span className="text-plum-500 px-4">{count}문제</span>
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
           <div className="flex flex-col gap-4 px-4 pb-10">
