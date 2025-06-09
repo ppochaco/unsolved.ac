@@ -12,11 +12,11 @@ import {
   Footer,
   Header,
   ProblemFilter,
+  ProblemFilterSheet,
   ProblemListPaginationButtons,
   ProblemListTable,
   SelectUserQueryClientProvider,
   SortProblemListButtons,
-  ToggleProblemFilterButton,
   UserFilter,
 } from './components'
 
@@ -119,7 +119,7 @@ export default async function Home({
             <UserFilter levelImages={levelImages} />
           </SelectUserQueryClientProvider>
           <div className="flex xl:hidden">
-            <ToggleProblemFilterButton />
+            <ProblemFilterSheet levels={problemLevels} tags={tags} />
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
           <div className="flex flex-col gap-4 px-4 pb-10">
