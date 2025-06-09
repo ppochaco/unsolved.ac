@@ -38,9 +38,9 @@ export const ProblemListTable = ({
               <div className="flex items-center justify-center">
                 <Image
                   src={levelImages.get(problem.levelId) ?? DEFAULT_TIER_SVG}
-                  width={16}
-                  height={16}
-                  className="object-contain"
+                  width={24}
+                  height={24}
+                  className="h-5 w-5"
                   alt={`solved.ac ${problem.levelId} tier`}
                 />
               </div>

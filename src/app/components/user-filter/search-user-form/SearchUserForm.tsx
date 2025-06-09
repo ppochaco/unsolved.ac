@@ -117,8 +117,9 @@ export const SearchUserForm = ({
             >
               <Image
                 src={levelImages.get(user.levelId) ?? DEFAULT_TIER_SVG}
-                width={18}
-                height={18}
+                width={24}
+                height={24}
+                className="h-5 w-5"
                 alt={`${user.userId} tier image`}
               />
               <Image
