@@ -19,7 +19,7 @@ export const SelectUser = ({
   progress,
 }: SelectUserProps) => {
   return (
-    <div className="flex w-full flex-col gap-2 px-4 pb-5">
+    <div className="flex w-full flex-col gap-2 pb-5">
       <div className="flex gap-1">
         <span className="font-bold">선택</span>
         <span className="text-primary font-bold">

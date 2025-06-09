@@ -33,8 +33,9 @@ export const LevelSelect = ({
             <SelectItem key={level.id} value={level.name}>
               <Image
                 src={level.imageUrl ?? DEFAULT_TIER_SVG}
-                width={14}
-                height={14}
+                width={20}
+                height={20}
+                className="h-4 w-4"
                 alt={`${level.name} svg`}
               />
               <div>{level.name}</div>

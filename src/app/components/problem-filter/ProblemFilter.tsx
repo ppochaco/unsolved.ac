@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
-import { ReloadIcon } from '@radix-ui/react-icons'
-import { useRouter } from 'next/navigation'
+import { DotFilledIcon, ReloadIcon } from '@radix-ui/react-icons'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-import { Button } from '@/components'
+import { Button, Separator } from '@/components'
 import { END_LEVEL, START_LEVEL } from '@/constant'
 import { Level, Tag } from '@/generated/prisma'
+import { cn } from '@/lib'
 
 import { LevelSelect } from './level-select'
 import { TagSelect } from './tag-select'
@@ -19,58 +20,42 @@ interface ProblemFilterProps {
 
 export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
   const router = useRouter()
-  const [startLevel, setStartLevel] = useState<string>(START_LEVEL)
-  const [endLevel, setEndLevel] = useState<string>(END_LEVEL)
-  const [tag, setTag] = useState<string>()
+  const searchParams = useSearchParams()
 
-  const getLevelId = (levelName: string) => {
-    return levels.find((level) => level.name === levelName)?.id ?? 0
-  }
+  const levelNametoId = useMemo(() => {
+    const map = new Map(levels.map((level) => [level.name, level.id]))
+    return (name: string) => map.get(name) ?? 0
+  }, [levels])
 
-  const applyFilter = () => {
-    const startId = Math.min(getLevelId(startLevel), getLevelId(endLevel))
-    const endId = Math.max(getLevelId(startLevel), getLevelId(endLevel))
+  const levelIdtoName = useMemo(() => {
+    const map = new Map(levels.map((level) => [level.id, level.name]))
+    return (id: number) => map.get(id)
+  }, [levels])
 
+  const startLevel =
+    levelIdtoName(Number(searchParams.get('startLevel'))) ?? START_LEVEL
+  const endLevel =
+    levelIdtoName(Number(searchParams.get('endLevel'))) ?? END_LEVEL
+  const tag = searchParams.get('tag') ?? undefined
+
+  const setSearchParam = (key: string, value: string) => {
     const params = new URLSearchParams(window.location.search)
-    params.set('startLevel', String(startId))
-    params.set('endLevel', String(endId))
-    if (tag) params.set('tag', tag)
-    router.push(`${window.location.pathname}?${params.toString()}`)
-  }
-
-  const resetFilter = () => {
-    setStartLevel(START_LEVEL)
-    setEndLevel(END_LEVEL)
-    setTag(undefined)
-
-    const params = new URLSearchParams(window.location.search)
-    params.delete('startLevel')
-    params.delete('endLevel')
-    params.delete('tag')
+    params.set(key, value)
     router.push(`${window.location.pathname}?${params}`)
   }
 
-  useEffect(() => {
+  const resetFilter = () => {
     const params = new URLSearchParams(window.location.search)
 
-    if (params.has('tag')) {
-      params.delete('tag')
-    }
+    params.delete('startLevel')
+    params.delete('endLevel')
+    params.delete('tag')
 
-    if (params.has('startLevel')) {
-      params.delete('startLevel')
-    }
-
-    if (params.has('endLevel')) {
-      params.delete('endLevel')
-    }
-
-    router.replace(`${window.location.pathname}?${params}`)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    router.push(`${window.location.pathname}?${params}`)
+  }
 
   return (
-    <div className="flex h-full w-xs flex-col gap-5 p-4">
+    <div className="flex h-full w-xs flex-col gap-4 px-4">
       <div className="flex items-center justify-between">
         <div className="font-bold">필터</div>
         <Button variant="ghost" onClick={resetFilter}>
@@ -78,28 +63,72 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
           <div>초기화</div>
         </Button>
       </div>
+      <Separator />
       <div className="flex flex-col gap-4">
         <div>난이도</div>
         <div className="flex gap-2">
           <LevelSelect
             value={startLevel}
             levels={levels}
-            selectLevel={setStartLevel}
+            selectLevel={(level) => {
+              setSearchParam('startLevel', levelNametoId(level).toString())
+            }}
           />
           <LevelSelect
             value={endLevel}
             levels={levels}
-            selectLevel={setEndLevel}
+            selectLevel={(level) => {
+              setSearchParam('endLevel', levelNametoId(level).toString())
+            }}
           />
         </div>
       </div>
+      <Separator />
       <div className="flex flex-col gap-4">
         <div>태그</div>
-        <TagSelect tags={tags} value={tag} selectTag={setTag} />
+        <TagSelect
+          tags={tags}
+          value={tag}
+          selectTag={(tag) => {
+            setSearchParam('tag', tag)
+          }}
+        />
       </div>
-      <Button onClick={applyFilter} className="w-full font-normal">
-        설정
-      </Button>
+      <Separator />
+      <div className="flex flex-col gap-4">
+        <div>solved 상태</div>
+        <ul className="flex flex-col gap-1 text-sm">
+          {SOLVED_STATES.map(({ label, textColor, dotColor }) => (
+            <li
+              key={label}
+              className={cn('flex items-center gap-2', textColor)}
+            >
+              <DotFilledIcon
+                className={cn('size-2.5 rounded-full', dotColor)}
+              />
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
+
+const SOLVED_STATES = [
+  {
+    label: '모두 unsolved',
+    textColor: 'text-primary',
+    dotColor: 'bg-primary',
+  },
+  {
+    label: '일부 unsolved',
+    textColor: 'text-plum-400',
+    dotColor: 'bg-plum-400',
+  },
+  {
+    label: '모두 solved',
+    textColor: '',
+    dotColor: 'bg-plum-950',
+  },
+] as const

@@ -1,3 +1,4 @@
+import { Separator } from '@/components'
 import {
   END_LEVEL_ID,
   PROBLEMS_PER_PAGE,
@@ -5,6 +6,7 @@ import {
   SORT_OPTIONS,
   START_LEVEL_ID,
 } from '@/constant'
+import { Prisma } from '@/generated/prisma'
 import { prisma } from '@/lib'
 import { ColoredProblem, SortDirection, SortOption } from '@/types'
 
@@ -12,11 +14,11 @@ import {
   Footer,
   Header,
   ProblemFilter,
+  ProblemFilterSheet,
   ProblemListPaginationButtons,
   ProblemListTable,
   SelectUserQueryClientProvider,
   SortProblemListButtons,
-  ToggleProblemFilterButton,
   UserFilter,
 } from './components'
 
@@ -29,36 +31,36 @@ export default async function Home({
   const { sort, direction, page, userId, startLevel, endLevel, tag } =
     parseSearchParams({ params })
 
-  // TODO: 필터링 기능 추가하기
-  // TODO: 문제 데이터 추가하기
+  const problemQuery: Prisma.ProblemWhereInput = {
+    levelId: {
+      gte: startLevel < endLevel ? startLevel : endLevel,
+      lte: startLevel < endLevel ? endLevel : startLevel,
+    },
+    ...(tag
+      ? {
+          ProblemTags: {
+            some: {
+              tag: {
+                key: tag,
+              },
+            },
+          },
+        }
+      : {}),
+  }
+
   const [levels, problems, count, userProblemIds, problemLevels, tags] =
     await prisma.$transaction([
       prisma.level.findMany(),
       prisma.problem.findMany({
-        where: {
-          levelId: {
-            gte: startLevel,
-            lte: endLevel,
-          },
-          ...(tag
-            ? {
-                ProblemTags: {
-                  some: {
-                    tag: {
-                      key: tag,
-                    },
-                  },
-                },
-              }
-            : {}),
-        },
+        where: problemQuery,
         orderBy: {
           [sort]: direction,
         },
         take: PROBLEMS_PER_PAGE,
         skip: PROBLEMS_PER_PAGE * (page - 1),
       }),
-      prisma.problem.count({ where: { levelId: 7 } }),
+      prisma.problem.count({ where: problemQuery }),
       prisma.userProblemId.findMany({
         where: {
           userId: {
@@ -110,19 +112,25 @@ export default async function Home({
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
       <Header />
-      <div className="flex flex-1">
+      <Separator />
+      <div className="flex flex-1 pt-4">
         <div className="hidden xl:flex">
           <ProblemFilter levels={problemLevels} tags={tags} />
         </div>
-        <div className="flex w-full min-w-0 flex-col">
+        <div className="flex w-full min-w-0 flex-col px-6">
           <SelectUserQueryClientProvider>
             <UserFilter levelImages={levelImages} />
           </SelectUserQueryClientProvider>
-          <div className="flex xl:hidden">
-            <ToggleProblemFilterButton />
+          <Separator />
+          <div className="flex items-center pt-4">
+            <div className="flex px-2 xl:hidden">
+              <ProblemFilterSheet levels={problemLevels} tags={tags} />
+            </div>
+            <span className="text-plum-500">{count}문제</span>
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
-          <div className="flex flex-col gap-4 px-4 pb-10">
+          <Separator />
+          <div className="flex flex-col gap-4 pb-10">
             <ProblemListTable
               problems={coloredProblems}
               levelImages={levelImages}
