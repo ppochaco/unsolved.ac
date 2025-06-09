@@ -1,3 +1,4 @@
+import { Separator } from '@/components'
 import {
   END_LEVEL_ID,
   PROBLEMS_PER_PAGE,
@@ -108,22 +109,25 @@ export default async function Home({
   return (
     <div className="font-inter text-plum-950 flex min-h-screen flex-col">
       <Header />
-      <div className="flex flex-1">
+      <Separator />
+      <div className="flex flex-1 pt-4">
         <div className="hidden xl:flex">
           <ProblemFilter levels={problemLevels} tags={tags} />
         </div>
-        <div className="flex w-full min-w-0 flex-col px-2">
+        <div className="flex w-full min-w-0 flex-col px-6">
           <SelectUserQueryClientProvider>
             <UserFilter levelImages={levelImages} />
           </SelectUserQueryClientProvider>
-          <div className="flex items-center">
-            <div className="flex xl:hidden">
+          <Separator />
+          <div className="flex items-center pt-4">
+            <div className="flex px-2 xl:hidden">
               <ProblemFilterSheet levels={problemLevels} tags={tags} />
             </div>
-            <span className="text-plum-500 px-4">{count}문제</span>
+            <span className="text-plum-500">{count}문제</span>
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
-          <div className="flex flex-col gap-4 px-4 pb-10">
+          <Separator />
+          <div className="flex flex-col gap-4 pb-10">
             <ProblemListTable
               problems={coloredProblems}
               levelImages={levelImages}

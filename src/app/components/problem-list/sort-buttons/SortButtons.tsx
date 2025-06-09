@@ -71,7 +71,7 @@ export const SortProblemListButtons = ({
   }
 
   return (
-    <div className="flex gap-8 px-4 py-4">
+    <div className="flex gap-8 py-4">
       <div className="font-bold">정렬</div>
       <ul className="flex gap-4">
         {options.map((option) => {

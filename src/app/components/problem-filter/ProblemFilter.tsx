@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { DotFilledIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { Button } from '@/components'
+import { Button, Separator } from '@/components'
 import { END_LEVEL, START_LEVEL } from '@/constant'
 import { Level, Tag } from '@/generated/prisma'
 import { cn } from '@/lib'
@@ -55,7 +55,7 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
   }
 
   return (
-    <div className="flex h-full w-xs flex-col gap-5 p-4">
+    <div className="flex h-full w-xs flex-col gap-4 px-4">
       <div className="flex items-center justify-between">
         <div className="font-bold">필터</div>
         <Button variant="ghost" onClick={resetFilter}>
@@ -63,6 +63,7 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
           <div>초기화</div>
         </Button>
       </div>
+      <Separator />
       <div className="flex flex-col gap-4">
         <div>난이도</div>
         <div className="flex gap-2">
@@ -82,6 +83,7 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
           />
         </div>
       </div>
+      <Separator />
       <div className="flex flex-col gap-4">
         <div>태그</div>
         <TagSelect
@@ -92,6 +94,7 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
           }}
         />
       </div>
+      <Separator />
       <div className="flex flex-col gap-4">
         <div>solved 상태</div>
         <ul className="flex flex-col gap-1 text-sm">

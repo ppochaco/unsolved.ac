@@ -27,7 +27,7 @@ export const ProblemFilterSheet = ({
     <div className="w-full">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" className="text-md">
+          <Button variant="ghost" className="text-md ml-[-16]">
             <MixerHorizontalIcon />
             <span>필터</span>
           </Button>
