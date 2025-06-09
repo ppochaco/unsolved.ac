@@ -16,9 +16,9 @@ interface TagSelectProps {
 
 export const TagSelect = ({ tags, value, selectTag }: TagSelectProps) => {
   return (
-    <Select value={value} onValueChange={selectTag}>
+    <Select value={value || ''} onValueChange={selectTag}>
       <SelectTrigger className="w-full">
-        <SelectValue />
+        <SelectValue placeholder="태그를 선택하세요" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
