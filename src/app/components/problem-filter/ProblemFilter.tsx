@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { ReloadIcon } from '@radix-ui/react-icons'
+import { DotFilledIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { Button } from '@/components'
 import { END_LEVEL, START_LEVEL } from '@/constant'
 import { Level, Tag } from '@/generated/prisma'
+import { cn } from '@/lib'
 
 import { LevelSelect } from './level-select'
 import { TagSelect } from './tag-select'
@@ -102,6 +103,40 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
           }}
         />
       </div>
+      <div className="flex flex-col gap-4">
+        <div>solved 상태</div>
+        <ul className="flex flex-col gap-1 text-sm">
+          {SOLVED_STATES.map(({ label, textColor, dotColor }) => (
+            <li
+              key={label}
+              className={cn('flex items-center gap-2', textColor)}
+            >
+              <DotFilledIcon
+                className={cn('size-2.5 rounded-full', dotColor)}
+              />
+              <span>{label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
+
+const SOLVED_STATES = [
+  {
+    label: '모두 unsolved',
+    textColor: 'text-primary',
+    dotColor: 'bg-primary',
+  },
+  {
+    label: '일부 unsolved',
+    textColor: 'text-plum-400',
+    dotColor: 'bg-plum-400',
+  },
+  {
+    label: '모두 solved',
+    textColor: '',
+    dotColor: 'bg-plum-950',
+  },
+] as const
