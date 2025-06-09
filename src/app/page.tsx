@@ -29,16 +29,14 @@ export default async function Home({
   const { sort, direction, page, userId, startLevel, endLevel, tag } =
     parseSearchParams({ params })
 
-  // TODO: 필터링 기능 추가하기
-  // TODO: 문제 데이터 추가하기
   const [levels, problems, count, userProblemIds, problemLevels, tags] =
     await prisma.$transaction([
       prisma.level.findMany(),
       prisma.problem.findMany({
         where: {
           levelId: {
-            gte: startLevel,
-            lte: endLevel,
+            gte: startLevel < endLevel ? startLevel : endLevel,
+            lte: startLevel < endLevel ? endLevel : startLevel,
           },
           ...(tag
             ? {
