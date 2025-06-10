@@ -126,7 +126,7 @@ export default async function Home({
             <div className="flex px-2 xl:hidden">
               <ProblemFilterSheet levels={problemLevels} tags={tags} />
             </div>
-            <span className="text-plum-500">{count}문제</span>
+            <span className="text-plum-500">{count.toLocaleString()}문제</span>
           </div>
           <SortProblemListButtons sort={sort} direction={direction} />
           <Separator />
