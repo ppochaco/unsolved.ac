@@ -28,7 +28,9 @@ export const TagSelect = ({ tags, value, selectTag }: TagSelectProps) => {
                 <div>{tag.name}</div>
                 <div className="text-plum-400">#{tag.key}</div>
               </div>
-              <div className="absolute right-8 text-sm">{tag.problemCount}</div>
+              <div className="absolute right-8 text-sm">
+                {tag.problemCount.toLocaleString()}
+              </div>
             </SelectItem>
           ))}
         </SelectGroup>

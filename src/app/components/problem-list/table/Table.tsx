@@ -69,7 +69,9 @@ export const ProblemListTable = ({
                 {problem.title}
               </Link>
             </td>
-            <td className="w-20 py-2.5 text-end">{problem.solvedCount}</td>
+            <td className="w-20 py-2.5 text-end">
+              {problem.solvedCount.toLocaleString()}
+            </td>
           </tr>
         ))}
       </tbody>
