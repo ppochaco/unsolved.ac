@@ -1,7 +1,7 @@
 # ![unsolved.ac icon](https://github.com/user-attachments/assets/af18dff7-050d-4986-8b84-b93cba229feb) unsolved.ac
 
 ![unsolved.ac detail](https://github.com/user-attachments/assets/6dd3e819-12ba-4334-a913-75c3b31be2f3)
-[unsolved.ac →](https://unsolved-ac.vercel.app/)
+[unsolved.ac →](https://unsolved-ac.com/)
 ![user filtering description](https://github.com/user-attachments/assets/646789d5-3cd6-45a7-a88f-12a334f1d8c8)
 
 ## Running Locally with Docker
