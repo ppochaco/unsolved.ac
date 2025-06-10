@@ -1,7 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
-import axios from 'axios'
 
 import { PROBLEMS_PER_PAGE } from '@/constant'
+
+import { unsolvedApi } from '../instance'
 
 type UserProblemResponse = {
   count: number
@@ -9,7 +10,7 @@ type UserProblemResponse = {
 }
 
 export const fetchUserProblemPaging = async (userId: string, page: number) => {
-  const response = await axios.get<UserProblemResponse>('/api/problems', {
+  const response = await unsolvedApi.get<UserProblemResponse>('/api/problems', {
     params: { userId, page },
   })
   const totalPage = Math.ceil(response.data.count / PROBLEMS_PER_PAGE)
