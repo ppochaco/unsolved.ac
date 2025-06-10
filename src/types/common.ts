@@ -5,6 +5,7 @@ export type User = {
   imageUrl: string
   levelId: number
   isSelected: boolean
+  isFetchingProblem: boolean
 }
 
 export type ColoredProblem = Problem & { color: 'black' | 'gray' | 'purple' }

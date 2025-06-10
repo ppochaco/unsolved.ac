@@ -1,1 +1,1 @@
-export { SelectUser } from './SelectUser'
+export { SelectUser, SelectUserSkeleton } from './SelectUser'

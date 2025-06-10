@@ -1,1 +1,1 @@
-export { SearchUserForm } from './SearchUserForm'
+export { SearchUserForm, SearchUserFormSkeleton } from './SearchUserForm'

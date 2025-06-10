@@ -1,3 +1,5 @@
+'use client'
+
 import { useRef, useState } from 'react'
 
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
@@ -39,6 +41,7 @@ export const SearchUserForm = ({
         imageUrl: info.profileImageUrl ?? DEFAULT_USER_IMAGE_URL,
         levelId: info.tier,
         isSelected: true,
+        isFetchingProblem: true,
       })
     },
     onError: (err) => {
@@ -134,6 +137,19 @@ export const SearchUserForm = ({
           </CardContent>
         </Card>
       )}
+    </form>
+  )
+}
+
+export const SearchUserFormSkeleton = () => {
+  return (
+    <form>
+      <div className="relative flex gap-2">
+        <Input placeholder="baekjoon 아이디" className="w-2xs bg-white" />
+        <Button disabled>
+          <MagnifyingGlassIcon className="mx-1 size-6" />
+        </Button>
+      </div>
     </form>
   )
 }
