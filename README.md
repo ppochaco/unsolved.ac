@@ -18,8 +18,8 @@ npm install
 
 ```bash
 docker run --name unsolved-postgres \
-  -e POSTGRES_USER=unsolved \
-  -e POSTGRES_PASSWORD=crew1234 \
+  -e POSTGRES_USER=userId \
+  -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DB=unsolved_db \
   -p 5432:5432 \
   -d postgres:15
@@ -31,7 +31,7 @@ docker run --name unsolved-postgres \
 
 ```js
 // .env
-DATABASE_URL=postgresql://unsolved:crew1234@localhost:5432/unsolved_db
+DATABASE_URL=postgres://userId:password@localhost:5432/unsolved_db
 ```
 
 > 포트를 다르게 지정했다면 5432 부분을 해당 포트 번호로 수정
@@ -52,7 +52,11 @@ npx prisma db seed
 
 ```bash
 npm run update-tags
+```
+```bash
 npm run update-silver-problems
+```
+```bash
 npm run update-gold-problems
 ```
 
