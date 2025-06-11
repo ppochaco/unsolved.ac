@@ -55,12 +55,18 @@ pnpm run update-tags
 ```
 
 ```bash
-pnpm run update-silver-problems
+pnpm run update-{rank}-problems
 ```
 
-```bash
-pnpm run update-gold-problems
-```
+> rank: `bronze`, `silver`, `gold`,`platinum`,`diamond`, `ruby`
+
+> sovled.ac API 호출 제한으로 문제 정보는 10분에 1번씩 실행
+
+- 예시
+
+  ```bash
+  pnpm run update-gold-problems
+  ```
 
 7. 개발 서버 실행
 
