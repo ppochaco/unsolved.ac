@@ -46,6 +46,8 @@ export const LevelSlider = ({
     })
   }
 
+  const LEVEL_MARK_STEP = 5
+
   return (
     <div>
       <Slider
@@ -55,17 +57,32 @@ export const LevelSlider = ({
         max={END_LEVEL_ID}
         step={1}
       />
-      <div className="flex justify-between pt-2">
-        {levels.map((level) => (
+      <div className="flex items-center pt-2">
+        <div className="flex flex-1 justify-between">
+          {levels.map((level) => {
+            if (level.id % LEVEL_MARK_STEP === 1)
+              return (
+                <Image
+                  key={level.id}
+                  src={level.imageUrl ?? DEFAULT_TIER_SVG}
+                  width={20}
+                  height={20}
+                  className="h-4 w-4"
+                  alt={`${level.name} svg`}
+                />
+              )
+          })}
+        </div>
+        <div className="flex w-9 justify-end">
           <Image
-            key={level.id}
-            src={level.imageUrl ?? DEFAULT_TIER_SVG}
+            key={END_LEVEL_ID}
+            src={levels[levels.length - 1].imageUrl ?? DEFAULT_TIER_SVG}
             width={20}
             height={20}
             className="h-4 w-4"
-            alt={`${level.name} svg`}
+            alt={`${levels[levels.length - 1].name} svg`}
           />
-        ))}
+        </div>
       </div>
     </div>
   )
