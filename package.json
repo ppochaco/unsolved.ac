@@ -1,6 +1,6 @@
 {
   "name": "unsolved.ac",
-  "version": "0.1.1",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "update-tags": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateTags.ts",
+    "update-bronze-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Bronze",
     "update-silver-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Silver",
     "update-gold-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Gold",
-    "update-platinum-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Platinum"
+    "update-platinum-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Platinum",
+    "update-diamond-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Diamond",
+    "update-ruby-problems": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' -r tsconfig-paths/register prisma/scripts/updateProblems.ts Ruby"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
@@ -18,6 +21,7 @@
     "@radix-ui/react-icons": "^1.3.2",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slider": "^1.3.5",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.80.6",
     "axios": "^1.9.0",

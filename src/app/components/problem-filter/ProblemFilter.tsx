@@ -6,11 +6,17 @@ import { DotFilledIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { Button, Separator } from '@/components'
-import { END_LEVEL, START_LEVEL } from '@/constant'
+import {
+  DEFAULT_END_LEVEL,
+  DEFAULT_END_LEVEL_ID,
+  DEFAULT_START_LEVEL,
+  DEFAULT_START_LEVEL_ID,
+} from '@/constant'
 import { Level, Tag } from '@/generated/prisma'
 import { cn } from '@/lib'
 
 import { LevelSelect } from './level-select'
+import { LevelSlider } from './level-slider'
 import { TagSelect } from './tag-select'
 
 interface ProblemFilterProps {
@@ -32,10 +38,14 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
     return (id: number) => map.get(id)
   }, [levels])
 
-  const startLevel =
-    levelIdtoName(Number(searchParams.get('startLevel'))) ?? START_LEVEL
-  const endLevel =
-    levelIdtoName(Number(searchParams.get('endLevel'))) ?? END_LEVEL
+  const startLevelId = Number(
+    searchParams.get('startLevel') ?? DEFAULT_START_LEVEL_ID,
+  )
+  const endLevelId = Number(
+    searchParams.get('endLevel') ?? DEFAULT_END_LEVEL_ID,
+  )
+  const startLevel = levelIdtoName(startLevelId) ?? DEFAULT_START_LEVEL
+  const endLevel = levelIdtoName(endLevelId) ?? DEFAULT_END_LEVEL
   const tag = searchParams.get('tag') ?? undefined
 
   const setSearchParam = (key: string, value: string) => {
@@ -66,6 +76,11 @@ export const ProblemFilter = ({ levels, tags }: ProblemFilterProps) => {
       <Separator />
       <div className="flex flex-col gap-4">
         <div>난이도</div>
+        <LevelSlider
+          levels={levels}
+          startLevel={startLevelId < endLevelId ? startLevelId : endLevelId}
+          endLevel={startLevelId < endLevelId ? endLevelId : startLevelId}
+        />
         <div className="flex gap-2">
           <LevelSelect
             value={startLevel}
