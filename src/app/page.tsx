@@ -1,5 +1,7 @@
 import { Separator } from '@/components'
 import {
+  DEFAULT_END_LEVEL_ID,
+  DEFAULT_START_LEVEL_ID,
   END_LEVEL_ID,
   PROBLEMS_PER_PAGE,
   SORT_DIRECTIONS,
@@ -71,8 +73,8 @@ export default async function Home({
       prisma.level.findMany({
         where: {
           id: {
-            gte: START_LEVEL_ID, // 실버 5
-            lte: END_LEVEL_ID, // 골드 1
+            gte: START_LEVEL_ID,
+            lte: END_LEVEL_ID,
           },
         },
       }),
@@ -114,7 +116,7 @@ export default async function Home({
       <Header />
       <Separator />
       <div className="flex flex-1 pt-4">
-        <div className="hidden xl:flex">
+        <div className="hidden lg:flex">
           <ProblemFilter levels={problemLevels} tags={tags} />
         </div>
         <div className="flex w-full min-w-0 flex-col px-6">
@@ -123,7 +125,7 @@ export default async function Home({
           </SelectUserQueryClientProvider>
           <Separator />
           <div className="flex items-center pt-4">
-            <div className="flex px-2 xl:hidden">
+            <div className="flex px-2 lg:hidden">
               <ProblemFilterSheet levels={problemLevels} tags={tags} />
             </div>
             <span className="text-plum-500">{count.toLocaleString()}문제</span>
@@ -149,8 +151,8 @@ function parseSearchParams({ params }: { params: { id: string } }) {
   let direction: SortDirection = 'desc'
   let page = 1
   let userId: string[] = []
-  let startLevel = START_LEVEL_ID
-  let endLevel = END_LEVEL_ID
+  let startLevel = DEFAULT_START_LEVEL_ID
+  let endLevel = DEFAULT_END_LEVEL_ID
   let tag = null
 
   for (const [key, value] of Object.entries(params)) {
