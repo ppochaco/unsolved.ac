@@ -1,10 +1,11 @@
 import { queryOptions } from '@tanstack/react-query'
-import axios from 'axios'
 
 import { SolvedAcUser } from '@/types'
 
+import { unsolvedApi } from '../instance'
+
 export const fetchUserInfoApi = async (userId: string) => {
-  const response = await axios.get<SolvedAcUser>('/api/users', {
+  const response = await unsolvedApi.get<SolvedAcUser>('/api/users', {
     params: { userId },
   })
 
@@ -29,7 +30,7 @@ export const updateUserProblemIdsApi = async (
   userId: string,
   problemIds: number[],
 ) => {
-  const response = await axios.post<UpdateUserProblemIdsResponse>(
+  const response = await unsolvedApi.post<UpdateUserProblemIdsResponse>(
     `/api/users/${userId}/problem-ids`,
     {
       problemIds,

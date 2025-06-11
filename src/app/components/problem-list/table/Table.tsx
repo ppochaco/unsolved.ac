@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 
 import { DEFAULT_TIER_SVG } from '@/constant'
 import { cn } from '@/lib'
@@ -36,8 +35,10 @@ export const ProblemListTable = ({
         {problems.map((problem) => (
           <tr key={problem.id} className="w-full border-b">
             <td className="w-10 py-2.5">
-              <Link
+              <a
                 href={`https://www.acmicpc.net/problem/${problem.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center"
               >
                 <Image
@@ -47,11 +48,13 @@ export const ProblemListTable = ({
                   className="h-5 w-5"
                   alt={`solved.ac ${problem.levelId} tier`}
                 />
-              </Link>
+              </a>
             </td>
             <td className="w-24 py-2.5 font-semibold">
-              <Link
+              <a
                 href={`https://www.acmicpc.net/problem/${problem.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
                   'border-plum-950 hover:border-b-1',
                   problem.color === 'purple' && 'text-primary border-primary',
@@ -59,17 +62,21 @@ export const ProblemListTable = ({
                 )}
               >
                 {problem.id}
-              </Link>
+              </a>
             </td>
             <td className="py-2.5">
-              <Link
+              <a
                 href={`https://www.acmicpc.net/problem/${problem.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="border-plum-950 hover:border-b-1"
               >
                 {problem.title}
-              </Link>
+              </a>
             </td>
-            <td className="w-20 py-2.5 text-end">{problem.solvedCount}</td>
+            <td className="w-20 py-2.5 text-end">
+              {problem.solvedCount.toLocaleString()}
+            </td>
           </tr>
         ))}
       </tbody>
