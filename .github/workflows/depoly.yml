@@ -22,6 +22,6 @@ jobs:
           script: |
             cd ~/unsolved.ac
             git pull origin main
-            npm install
-            npm run build
+            pnpm install
+            pnpm run build
             pm2 restart unsolved || pm2 start npm --name "unsolved" -- start

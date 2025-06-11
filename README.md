@@ -11,7 +11,7 @@
 1. 의존성 설치
 
 ```bash
-npm install
+pnpm install
 ```
 
 2. PostgreSQL 도커 컨테이너 실행
@@ -39,31 +39,33 @@ DATABASE_URL=postgres://userId:password@localhost:5432/unsolved_db
 4. Prisma 마이그레이션 적용
 
 ```bash
-npx prisma migrate dev --name init
+pnpx prisma migrate dev --name init
 ```
 
 5. 시드 데이터 입력
 
 ```bash
-npx prisma db seed
+pnpx prisma db seed
 ```
 
 6. 기초 문제 정보 업데이트
 
 ```bash
-npm run update-tags
+pnpm run update-tags
 ```
+
 ```bash
-npm run update-silver-problems
+pnpm run update-silver-problems
 ```
+
 ```bash
-npm run update-gold-problems
+pnpm run update-gold-problems
 ```
 
 7. 개발 서버 실행
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 ### 이후 실행 시
@@ -77,5 +79,5 @@ docker start unsolved-postgres
 2. 개발 서버 실행
 
 ```bash
-npm run dev
+pnpm run dev
 ```
