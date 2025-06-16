@@ -1,9 +1,10 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import React from "react";
+import ReactDOM from "react-dom/client";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+// 개발 테스트용
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
     <div>test</div>
-  </StrictMode>
+  </React.StrictMode>
 );
