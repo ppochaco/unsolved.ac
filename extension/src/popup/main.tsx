@@ -1,9 +1,10 @@
-import { createRoot } from "react-dom/client";
-import { Popup } from "./Popup";
-import "../index.css";
+import { createRoot } from 'react-dom/client'
 
-const container = document.getElementById("popup-root");
+import '../index.css'
+import { Popup } from './Popup'
+
+const container = document.getElementById('popup-root')
 if (container) {
-  const root = createRoot(container);
-  root.render(<Popup />);
+  const root = createRoot(container)
+  root.render(<Popup />)
 }
