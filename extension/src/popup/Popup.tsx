@@ -1,85 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Label, Switch } from '@/components'
-
-interface ToggleExtensionMessage {
-  type: 'TOGGLE_EXTENSION'
-  isEnabled: boolean
-}
-
-interface NavigationMessage {
-  type: 'NAVIGATE_TO_PROBLEMS'
-}
+import { queryClient } from '@/lib'
+import {
+  getIsEnabled,
+  getIsSolvedAcPage,
+  navigateToSolvedAc,
+  toggleIsEnabled,
+} from '@/services'
 
 export const Popup = () => {
-  const [isEnabled, setIsEnabled] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: isEnabled } = useSuspenseQuery({
+    queryKey: ['extension', 'isEnabled'],
+    queryFn: getIsEnabled,
+  })
 
-  const [isProblemsPage, setIsProblemsPage] = useState(false)
+  const { data: isSolvedAcPage } = useSuspenseQuery({
+    queryKey: ['extension', 'isSolvedAc'],
+    queryFn: getIsSolvedAcPage,
+  })
 
-  useEffect(() => {
-    const loadState = async () => {
-      try {
-        const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
-        setIsEnabled(Boolean(isEnabled))
+  const { mutate: toggle, isPending: isToggling } = useMutation({
+    mutationFn: toggleIsEnabled,
+    onSuccess: (newIsEnabled) => {
+      queryClient.invalidateQueries({ queryKey: ['extension', 'isEnabled'] })
 
-        const tabs = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        })
-        const activeTab = tabs[0]
-
-        if (activeTab?.url) {
-          setIsProblemsPage(activeTab.url.includes('solved.ac/problems'))
-        }
-      } catch (error) {
-        console.error('Popup: 상태 로드 실패', error)
-      } finally {
-        setIsLoading(false)
+      if (newIsEnabled && !isSolvedAcPage) {
+        navigate()
       }
-    }
+    },
+  })
 
-    loadState()
-  }, [])
+  const { mutate: navigate, isPending: isNavigating } = useMutation({
+    mutationFn: navigateToSolvedAc,
+  })
 
-  const navigateToProblems = async (): Promise<void> => {
-    try {
-      const message: NavigationMessage = {
-        type: 'NAVIGATE_TO_PROBLEMS',
-      }
-
-      await chrome.runtime.sendMessage(message)
-    } catch (error) {
-      console.error('Popup: 페이지 이동 실패', error)
-    }
-  }
-
-  const toggleExtension = async (): Promise<void> => {
-    const newIsEnabled = !isEnabled
-    setIsEnabled(newIsEnabled)
-
-    try {
-      await chrome.storage.local.set({ isEnabled: newIsEnabled })
-
-      const message: ToggleExtensionMessage = {
-        type: 'TOGGLE_EXTENSION',
-        isEnabled: newIsEnabled,
-      }
-
-      await chrome.runtime.sendMessage(message)
-
-      if (!isProblemsPage && isEnabled === false) {
-        await navigateToProblems()
-      }
-    } catch (error) {
-      console.error('Popup: 상태 저장 실패', error)
-      setIsEnabled(!newIsEnabled)
-      await chrome.storage.local.set({ isEnabled: !newIsEnabled })
-    }
-  }
-
-  if (isLoading) {
-    return <div className="w-60 py-2 text-center">loading...</div>
+  const onClickSwitch = () => {
+    toggle(!isEnabled)
   }
 
   return (
@@ -89,7 +46,8 @@ export const Popup = () => {
         <Switch
           id="unsolved-mode"
           checked={isEnabled}
-          onCheckedChange={toggleExtension}
+          onCheckedChange={onClickSwitch}
+          disabled={isToggling || isNavigating}
         />
         <Label>unsolved 모두 찾기</Label>
       </div>
