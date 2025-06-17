@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQueries } from '@tanstack/react-query'
 
 import { Label, Switch } from '@/components'
 import { queryClient } from '@/lib'
@@ -11,14 +11,14 @@ import {
 } from '@/services'
 
 export const Popup = () => {
-  const { data: isEnabled } = useSuspenseQuery({
-    queryKey: extensionQueries.enabled(),
-    queryFn: getExtensionEnabled,
-  })
-
-  const { data: isSolvedAcPage } = useSuspenseQuery({
-    queryKey: extensionQueries.isSolvedAcPage(),
-    queryFn: getIsSolvedAcPage,
+  const [{ data: isEnabled }, { data: isSolvedAcPage }] = useSuspenseQueries({
+    queries: [
+      { queryKey: extensionQueries.enabled(), queryFn: getExtensionEnabled },
+      {
+        queryKey: extensionQueries.isSolvedAcPage(),
+        queryFn: getIsSolvedAcPage,
+      },
+    ],
   })
 
   const { mutate: toggle, isPending: isToggling } = useMutation({
