@@ -30,7 +30,6 @@ if (container) {
           <Popup />
         </Suspense>
       </QueryClientProvider>
-      ,
     </ErrorBoundary>,
   )
 }
