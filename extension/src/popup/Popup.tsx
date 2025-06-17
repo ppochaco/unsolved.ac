@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import { Label, Switch } from '@/components'
+
 interface ToggleExtensionMessage {
   type: 'TOGGLE_EXTENSION'
   isEnabled: boolean
@@ -65,6 +67,10 @@ export const Popup = () => {
       }
 
       await chrome.runtime.sendMessage(message)
+
+      if (!isProblemsPage && isEnabled === false) {
+        await navigateToProblems()
+      }
     } catch (error) {
       console.error('Popup: 상태 저장 실패', error)
       setIsEnabled(!newIsEnabled)
@@ -73,98 +79,20 @@ export const Popup = () => {
   }
 
   if (isLoading) {
-    return (
-      <div
-        style={{
-          width: '300px',
-          padding: '20px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        Loading...
-      </div>
-    )
+    return <div className="w-60 py-2 text-center">loading...</div>
   }
 
   return (
-    <div
-      style={{
-        width: '300px',
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: '20px',
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: '18px' }}>unsolved-ac</h2>
+    <div className="flex w-60 flex-col gap-2.5 py-5">
+      <h2 className="text-center text-xl font-bold">unsolved-ac</h2>
+      <div className="flex justify-center gap-2">
+        <Switch
+          id="unsolved-mode"
+          checked={isEnabled}
+          onCheckedChange={toggleExtension}
+        />
+        <Label>unsolved 모두 찾기</Label>
       </div>
-
-      {!isProblemsPage ? (
-        <div style={{ marginBottom: '20px' }}>
-          <button
-            onClick={navigateToProblems}
-            style={{
-              width: '100%',
-              padding: '10px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            solved.ac 문제집으로 이동
-          </button>
-        </div>
-      ) : (
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={isEnabled}
-              onChange={toggleExtension}
-              style={{ marginRight: '8px' }}
-            />
-            활성화
-          </label>
-
-          <div
-            style={{
-              marginTop: '15px',
-              padding: '10px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '4px',
-              fontSize: '12px',
-            }}
-          >
-            상태:
-            <span
-              style={{
-                marginLeft: '8px',
-                color: isEnabled ? '#28a745' : '#6c757d',
-                fontWeight: 'bold',
-              }}
-            >
-              {isEnabled ? '활성화' : '비활성화'}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
