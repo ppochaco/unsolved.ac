@@ -1,4 +1,5 @@
 export { buttonVariants } from './button-variants'
 export { Button } from './button'
 export { Label } from './label'
+export { Spinner } from './spinner'
 export { Switch } from './switch'
