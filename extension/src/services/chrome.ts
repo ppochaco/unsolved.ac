@@ -1,4 +1,4 @@
-export const getIsEnabled = async () => {
+export const getExtensionEnabled = async () => {
   try {
     const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
     return Boolean(isEnabled)
@@ -17,6 +17,12 @@ export const getIsSolvedAcPage = async () => {
     console.warn(error)
     throw new Error('페이지 정보를 확인할 수 없습니다')
   }
+}
+
+export const extensionQueries = {
+  all: () => ['extension'] as const,
+  enabled: () => [...extensionQueries.all(), 'enabled'] as const,
+  isSolvedAcPage: () => [...extensionQueries.all(), 'isSolvedAcPage'] as const,
 }
 
 export const toggleIsEnabled = async (isEnabled: boolean) => {

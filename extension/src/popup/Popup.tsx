@@ -3,7 +3,8 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Label, Switch } from '@/components'
 import { queryClient } from '@/lib'
 import {
-  getIsEnabled,
+  extensionQueries,
+  getExtensionEnabled,
   getIsSolvedAcPage,
   navigateToSolvedAc,
   toggleIsEnabled,
@@ -11,19 +12,19 @@ import {
 
 export const Popup = () => {
   const { data: isEnabled } = useSuspenseQuery({
-    queryKey: ['extension', 'isEnabled'],
-    queryFn: getIsEnabled,
+    queryKey: extensionQueries.enabled(),
+    queryFn: getExtensionEnabled,
   })
 
   const { data: isSolvedAcPage } = useSuspenseQuery({
-    queryKey: ['extension', 'isSolvedAc'],
+    queryKey: extensionQueries.isSolvedAcPage(),
     queryFn: getIsSolvedAcPage,
   })
 
   const { mutate: toggle, isPending: isToggling } = useMutation({
     mutationFn: toggleIsEnabled,
     onSuccess: (newIsEnabled) => {
-      queryClient.invalidateQueries({ queryKey: ['extension', 'isEnabled'] })
+      queryClient.invalidateQueries({ queryKey: extensionQueries.enabled() })
 
       if (newIsEnabled && !isSolvedAcPage) {
         navigate()
@@ -33,6 +34,11 @@ export const Popup = () => {
 
   const { mutate: navigate, isPending: isNavigating } = useMutation({
     mutationFn: navigateToSolvedAc,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: extensionQueries.isSolvedAcPage(),
+      })
+    },
   })
 
   const onClickSwitch = () => {
