@@ -4,7 +4,7 @@ import { getExtensionEnabled, toggleIsEnabled } from '@/services'
 
 import { createShadowDOM } from './main'
 
-interface ContentMessage {
+export type ContentMessage = {
   type: 'EXTENSION_TOGGLED'
   isEnabled: boolean
 }
@@ -94,6 +94,7 @@ chrome.runtime.onMessage.addListener((message: ContentMessage) => {
       extension.removeShadowDOM()
     }
   } catch (error) {
-    console.warn('UI 생성/제거 실패:', error)
+    console.debug('UI 생성/제거 실패:', error)
+    throw error
   }
 })
