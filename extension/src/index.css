@@ -71,7 +71,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
+:root,
+:host {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: #1f132e;

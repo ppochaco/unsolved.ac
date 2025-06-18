@@ -6,7 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 
 import { Spinner } from '../components'
 import '../index.css'
-import { queryClient } from '../lib'
+import { queryClient } from '../libs'
 import { Popup } from './Popup'
 import { PopupErrorFallback } from './PopupErrorFallback'
 

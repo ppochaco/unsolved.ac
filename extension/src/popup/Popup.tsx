@@ -1,61 +1,37 @@
-import { useMutation, useSuspenseQueries } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Label, Switch } from '@/components'
-import { queryClient } from '@/lib'
+import { queryClient } from '@/libs'
 import {
   extensionQueries,
   getExtensionEnabled,
-  getIsSolvedAcPage,
-  navigateToSolvedAc,
   toggleIsEnabled,
 } from '@/services'
 
 export const Popup = () => {
-  const [{ data: isEnabled }, { data: isSolvedAcPage }] = useSuspenseQueries({
-    queries: [
-      { queryKey: extensionQueries.enabled(), queryFn: getExtensionEnabled },
-      {
-        queryKey: extensionQueries.isSolvedAcPage(),
-        queryFn: getIsSolvedAcPage,
-      },
-    ],
+  const { data: isEnabled } = useSuspenseQuery({
+    queryKey: extensionQueries.enabled(),
+    queryFn: getExtensionEnabled,
   })
 
-  const { mutate: toggle, isPending: isToggling } = useMutation({
+  const { mutate: toggle, status } = useMutation({
     mutationFn: toggleIsEnabled,
-    onSuccess: (newIsEnabled) => {
-      queryClient.invalidateQueries({ queryKey: extensionQueries.enabled() })
-
-      if (newIsEnabled && !isSolvedAcPage) {
-        navigate()
-      }
-    },
-  })
-
-  const { mutate: navigate, isPending: isNavigating } = useMutation({
-    mutationFn: navigateToSolvedAc,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: extensionQueries.isSolvedAcPage(),
-      })
+      queryClient.invalidateQueries({ queryKey: extensionQueries.enabled() })
     },
   })
-
-  const onClickSwitch = () => {
-    toggle(!isEnabled)
-  }
 
   return (
     <div className="flex w-60 flex-col gap-2.5 py-5">
       <h2 className="text-center text-xl font-bold">unsolved-ac</h2>
-      <div className="flex justify-center gap-2">
+      <div className="flex items-center justify-center gap-2">
         <Switch
           id="unsolved-mode"
           checked={isEnabled}
-          onCheckedChange={onClickSwitch}
-          disabled={isToggling || isNavigating}
+          onCheckedChange={() => toggle(!isEnabled)}
+          disabled={status === 'pending'}
         />
-        <Label>unsolved 모두 찾기</Label>
+        <Label htmlFor="unsolved-mode">unsolved 모두 찾기</Label>
       </div>
     </div>
   )
