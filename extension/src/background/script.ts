@@ -26,12 +26,7 @@ class StorageService {
   }
 
   static async setEnabled(isEnabled: boolean) {
-    try {
-      await chrome.storage.local.set({ isEnabled })
-    } catch (error) {
-      console.debug('isEnabled 저장 실패:', error)
-      throw error
-    }
+    await chrome.storage.local.set({ isEnabled })
   }
 }
 
@@ -87,8 +82,6 @@ class MessageHandler {
         message: successMessage,
       })
     } catch (error) {
-      console.debug('익스텐션 활성화/비활성화 실패:', error)
-
       const errorMessage =
         error instanceof Error ? error.message : ERROR_MESSAGES.UNKNOWN_ERROR
 

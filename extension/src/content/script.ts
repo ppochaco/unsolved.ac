@@ -87,14 +87,9 @@ const extension = new UnsolvedACExtension()
 chrome.runtime.onMessage.addListener((message: ContentMessage) => {
   if (message.type !== 'EXTENSION_TOGGLED') return
 
-  try {
-    if (message.isEnabled) {
-      extension.showShadowDOM()
-    } else {
-      extension.removeShadowDOM()
-    }
-  } catch (error) {
-    console.debug('UI 생성/제거 실패:', error)
-    throw error
+  if (message.isEnabled) {
+    extension.showShadowDOM()
+  } else {
+    extension.removeShadowDOM()
   }
 })

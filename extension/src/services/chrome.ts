@@ -1,13 +1,8 @@
 import type { BackgroundMessage, BackgroundResponse } from '@/background'
 
 export const getExtensionEnabled = async () => {
-  try {
-    const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
-    return Boolean(isEnabled)
-  } catch (error) {
-    console.warn(error)
-    throw new Error('설정을 불러올 수 없습니다')
-  }
+  const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
+  return Boolean(isEnabled)
 }
 
 export const extensionQueries = {
