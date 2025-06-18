@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES } from '@/constant'
+import { ERROR_MESSAGES } from '@/constants'
 import type { ContentMessage } from '@/content'
 
 export type BackgroundMessage = {

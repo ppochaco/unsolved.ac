@@ -1,7 +1,7 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Label, Switch } from '@/components'
-import { queryClient } from '@/lib'
+import { queryClient } from '@/libs'
 import {
   extensionQueries,
   getExtensionEnabled,
