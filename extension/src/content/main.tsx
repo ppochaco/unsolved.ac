@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client'
 
 import tailwindStyles from '../index.css?inline'
-import { UserFilter } from './UserFilter'
+import { UserFilter } from './components'
 
 export const createShadowDOM = (
   shadowRoot: ShadowRoot,

@@ -4,11 +4,11 @@ import { ErrorBoundary } from 'react-error-boundary'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { Spinner } from '../components'
+import { Spinner } from '@/components'
+import { queryClient } from '@/libs'
+
 import '../index.css'
-import { queryClient } from '../libs'
-import { Popup } from './Popup'
-import { PopupErrorFallback } from './PopupErrorFallback'
+import { Popup, PopupErrorFallback } from './components'
 
 const container = document.getElementById('popup-root')
 
