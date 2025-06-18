@@ -25,18 +25,31 @@ export const extensionQueries = {
   isSolvedAcPage: () => [...extensionQueries.all(), 'isSolvedAcPage'] as const,
 }
 
-export const toggleIsEnabled = async (isEnabled: boolean) => {
+export const setExtensionEnabled = async (isEnabled: boolean) => {
   try {
     await chrome.storage.local.set({ isEnabled })
+  } catch (error) {
+    console.warn(error)
+    throw new Error('설정 저장에 실패했습니다')
+  }
+}
+
+export const notifyExtensionEnabledChanged = async (isEnabled: boolean) => {
+  try {
     await chrome.runtime.sendMessage({
       type: 'TOGGLE_EXTENSION',
       isEnabled,
     })
-    return isEnabled
   } catch (error) {
-    console.warn(error)
-    throw new Error('설정 변경에 실패했습니다')
+    console.warn('팝업에 상태 변경 알림 실패:', error)
   }
+}
+
+export const toggleIsEnabled = async (isEnabled: boolean) => {
+  await setExtensionEnabled(isEnabled)
+  await notifyExtensionEnabledChanged(isEnabled)
+
+  return isEnabled
 }
 
 export const navigateToSolvedAc = async () => {
