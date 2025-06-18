@@ -6,7 +6,7 @@
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["https://solved.ac/problems"],
   "background": {
-    "service_worker": "src/background/index.ts",
+    "service_worker": "src/background/script.ts",
     "type": "module"
   },
   "content_scripts": [
