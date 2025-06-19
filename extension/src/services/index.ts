@@ -1,5 +1,1 @@
-export {
-  getExtensionEnabled,
-  extensionQueries,
-  toggleIsEnabled,
-} from './chrome'
+export * from './api'
