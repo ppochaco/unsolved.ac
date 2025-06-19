@@ -1,14 +1,26 @@
+import axios from 'axios'
+
 import { ERROR_MESSAGES } from '@/constants'
 import type { ContentMessage } from '@/content'
+import { fetchUserInfoApi } from '@/services'
+import type { SolvedAcUser } from '@/types'
 
-export type BackgroundMessage = {
+type ToggleExtension = {
   type: 'TOGGLE_EXTENSION'
   isEnabled: boolean
 }
 
+type FetchUserInfo = {
+  type: 'FETCH_USER_INFO'
+  userId: string
+}
+
+export type BackgroundMessage = ToggleExtension | FetchUserInfo
+
 interface SuccessResponse {
   success: true
   message: string
+  data?: SolvedAcUser
 }
 
 interface ErrorResponse {
@@ -65,8 +77,48 @@ class TabService {
 }
 
 class MessageHandler {
+  static async fetchUserInfo(
+    userId: string,
+    sendResponse: (response: BackgroundResponse) => void,
+  ) {
+    try {
+      const data = await fetchUserInfoApi(userId)
+
+      sendResponse({
+        success: true,
+        message: `${userId} 정보`,
+        data,
+      })
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          sendResponse({
+            success: false,
+            error: ERROR_MESSAGES.BAD_REQUEST,
+          })
+
+          return
+        }
+
+        if (error.response?.status === 404) {
+          sendResponse({
+            success: false,
+            error: ERROR_MESSAGES.USER_NOT_FOUND,
+          })
+
+          return
+        }
+      }
+
+      sendResponse({
+        success: false,
+        error: '데이터를 가져오는데 실패했습니다.',
+      })
+    }
+  }
+
   static async toggleExtension(
-    message: BackgroundMessage,
+    message: ToggleExtension,
     sendResponse: (response: BackgroundResponse) => void,
   ) {
     try {
@@ -124,6 +176,11 @@ chrome.runtime.onMessage.addListener(
   ) => {
     if (message.type === 'TOGGLE_EXTENSION') {
       MessageHandler.toggleExtension(message, sendResponse)
+      return true
+    }
+
+    if (message.type === 'FETCH_USER_INFO') {
+      MessageHandler.fetchUserInfo(message.userId, sendResponse)
       return true
     }
 
