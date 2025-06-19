@@ -1,17 +1,17 @@
 import type { BackgroundMessage, BackgroundResponse } from '@/background'
 
-export const getExtensionEnabled = async () => {
+const getExtensionEnabled = async () => {
   const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
   return Boolean(isEnabled)
 }
 
-export const extensionQueries = {
+const extensionQueries = {
   all: () => ['extension'] as const,
   enabled: () => [...extensionQueries.all(), 'enabled'] as const,
 }
 
-export const toggleIsEnabled = async (isEnabled: boolean) => {
-  const response: BackgroundResponse =
+const toggleIsEnabled = async (isEnabled: boolean) => {
+  const response: BackgroundResponse<'TOGGLE_EXTENSION'> =
     await chrome.runtime.sendMessage<BackgroundMessage>({
       type: 'TOGGLE_EXTENSION',
       isEnabled,
@@ -21,11 +21,11 @@ export const toggleIsEnabled = async (isEnabled: boolean) => {
     throw new Error(response.error)
   }
 
-  return isEnabled
+  return response.data
 }
 
-export const fetchUserInfo = async (userId: string) => {
-  const response: BackgroundResponse =
+const fetchUserInfo = async (userId: string) => {
+  const response: BackgroundResponse<'FETCH_USER_INFO'> =
     await chrome.runtime.sendMessage<BackgroundMessage>({
       type: 'FETCH_USER_INFO',
       userId,
@@ -35,9 +35,43 @@ export const fetchUserInfo = async (userId: string) => {
     throw new Error(response.error)
   }
 
-  if (!response.data) {
-    throw new Error('유저를 찾을 수 없습니다.')
+  return response.data
+}
+
+const fetchUserProblemIds = async (userId: string, page: number) => {
+  const response: BackgroundResponse<'FETCH_USER_PROBLEM_IDS'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'FETCH_USER_PROBLEM_IDS',
+      userId,
+      page,
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
   }
 
-  return response.data
+  const PROBLEMS_PER_PAGE = 50
+  const totalPage = Math.ceil(response.data.count / PROBLEMS_PER_PAGE)
+
+  return {
+    problems: response.data,
+    nextPageToken: page < totalPage ? page + 1 : undefined,
+  }
+}
+
+const userQueries = {
+  all: () => ['user'] as const,
+  user: (userId: string) => [...userQueries.all(), userId] as const,
+  info: (userId: string) => [...userQueries.user(userId), 'info'] as const,
+  problemId: (userId: string) =>
+    [...userQueries.user(userId), 'problem-id'] as const,
+}
+
+export {
+  getExtensionEnabled,
+  extensionQueries,
+  toggleIsEnabled,
+  fetchUserInfo,
+  fetchUserProblemIds,
+  userQueries,
 }

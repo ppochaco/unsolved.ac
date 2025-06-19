@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-import { ERROR_MESSAGES } from '@/constants'
+import { ERROR_MESSAGES, SOLVED_AC_PROBLEMS_URL } from '@/constants'
 import type { ContentMessage } from '@/content'
 import { fetchUserInfoApi } from '@/services'
+import { fetchUserProblemApi } from '@/services/api/solved-ac'
 import type { SolvedAcUser } from '@/types'
 
 type ToggleExtension = {
@@ -15,12 +16,32 @@ type FetchUserInfo = {
   userId: string
 }
 
-export type BackgroundMessage = ToggleExtension | FetchUserInfo
+type FetchUserProblem = {
+  type: 'FETCH_USER_PROBLEM_IDS'
+  userId: string
+  page: number
+}
 
-interface SuccessResponse {
+export type BackgroundMessage =
+  | ToggleExtension
+  | FetchUserInfo
+  | FetchUserProblem
+
+type UserProblemResponse = {
+  count: number
+  problemIds: number[]
+}
+
+type MessageResponseData = {
+  TOGGLE_EXTENSION: boolean
+  FETCH_USER_INFO: SolvedAcUser
+  FETCH_USER_PROBLEM_IDS: UserProblemResponse
+}
+
+type SuccessResponse<T extends BackgroundMessage['type']> = {
   success: true
   message: string
-  data?: SolvedAcUser
+  data: MessageResponseData[T]
 }
 
 interface ErrorResponse {
@@ -28,9 +49,9 @@ interface ErrorResponse {
   error: string
 }
 
-export type BackgroundResponse = SuccessResponse | ErrorResponse
-
-const SOLVED_AC_PROBLEMS_URL = 'https://solved.ac/problems'
+export type BackgroundResponse<T extends BackgroundMessage['type']> =
+  | SuccessResponse<T>
+  | ErrorResponse
 
 class StorageService {
   static async initializeStorage() {
@@ -76,10 +97,54 @@ class TabService {
   }
 }
 
+class ErrorHandler {
+  static handleCommonError<T extends BackgroundMessage['type']>(
+    error: unknown,
+    sendResponse: (response: BackgroundResponse<T>) => void,
+  ) {
+    if (axios.isAxiosError(error)) {
+      sendResponse({
+        success: false,
+        error: error.message,
+      })
+      return
+    }
+
+    sendResponse({
+      success: false,
+      error: ERROR_MESSAGES.UNKNOWN_ERROR,
+    })
+  }
+}
+
 class MessageHandler {
+  static async fetchUserProblemIds(
+    userId: string,
+    page: number,
+    sendResponse: (
+      response: BackgroundResponse<'FETCH_USER_PROBLEM_IDS'>,
+    ) => void,
+  ) {
+    try {
+      const data = await fetchUserProblemApi(userId, page)
+      const problemIds = data.items.map((p) => p.problemId)
+
+      sendResponse({
+        success: true,
+        message: `${userId} solved problem ids`,
+        data: {
+          count: data.count,
+          problemIds,
+        },
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
   static async fetchUserInfo(
     userId: string,
-    sendResponse: (response: BackgroundResponse) => void,
+    sendResponse: (response: BackgroundResponse<'FETCH_USER_INFO'>) => void,
   ) {
     try {
       const data = await fetchUserInfoApi(userId)
@@ -96,7 +161,6 @@ class MessageHandler {
             success: false,
             error: ERROR_MESSAGES.BAD_REQUEST,
           })
-
           return
         }
 
@@ -105,21 +169,17 @@ class MessageHandler {
             success: false,
             error: ERROR_MESSAGES.USER_NOT_FOUND,
           })
-
           return
         }
       }
 
-      sendResponse({
-        success: false,
-        error: '데이터를 가져오는데 실패했습니다.',
-      })
+      ErrorHandler.handleCommonError(error, sendResponse)
     }
   }
 
   static async toggleExtension(
     message: ToggleExtension,
-    sendResponse: (response: BackgroundResponse) => void,
+    sendResponse: (response: BackgroundResponse<'TOGGLE_EXTENSION'>) => void,
   ) {
     try {
       await this.ensureSolvedAcPage()
@@ -132,15 +192,10 @@ class MessageHandler {
       sendResponse({
         success: true,
         message: successMessage,
+        data: message.isEnabled,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : ERROR_MESSAGES.UNKNOWN_ERROR
-
-      sendResponse({
-        success: false,
-        error: errorMessage,
-      })
+      ErrorHandler.handleCommonError(error, sendResponse)
     }
   }
 
@@ -172,7 +227,13 @@ chrome.runtime.onMessage.addListener(
   (
     message: BackgroundMessage,
     _sender,
-    sendResponse: (response: BackgroundResponse) => void,
+    sendResponse: (
+      response:
+        | SuccessResponse<'TOGGLE_EXTENSION'>
+        | SuccessResponse<'FETCH_USER_INFO'>
+        | SuccessResponse<'FETCH_USER_PROBLEM_IDS'>
+        | ErrorResponse,
+    ) => void,
   ) => {
     if (message.type === 'TOGGLE_EXTENSION') {
       MessageHandler.toggleExtension(message, sendResponse)
@@ -181,6 +242,15 @@ chrome.runtime.onMessage.addListener(
 
     if (message.type === 'FETCH_USER_INFO') {
       MessageHandler.fetchUserInfo(message.userId, sendResponse)
+      return true
+    }
+
+    if (message.type === 'FETCH_USER_PROBLEM_IDS') {
+      MessageHandler.fetchUserProblemIds(
+        message.userId,
+        message.page,
+        sendResponse,
+      )
       return true
     }
 

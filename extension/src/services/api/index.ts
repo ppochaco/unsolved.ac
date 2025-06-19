@@ -3,6 +3,8 @@ export {
   extensionQueries,
   toggleIsEnabled,
   fetchUserInfo,
+  userQueries,
+  fetchUserProblemIds,
 } from './chrome'
 
-export { fetchUserInfoApi, solvedAcQueries } from './solved-ac'
+export { fetchUserInfoApi } from './solved-ac'

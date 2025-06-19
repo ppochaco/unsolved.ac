@@ -1,4 +1,4 @@
-import type { SolvedAcUser } from '@/types'
+import type { SolvedAcProblem, SolvedAcUser } from '@/types'
 
 import { solvedAcApi } from '../instance'
 
@@ -10,9 +10,23 @@ const fetchUserInfoApi = async (userId: string) => {
   return response.data
 }
 
-const solvedAcQueries = {
-  all: () => ['solved-ac'] as const,
-  userInfo: () => [...solvedAcQueries.all(), 'user', 'info'] as const,
+type SearchProblemResponse = {
+  count: number
+  items: SolvedAcProblem[]
 }
 
-export { fetchUserInfoApi, solvedAcQueries }
+const fetchUserProblemApi = async (userId: string, page: number) => {
+  const response = await solvedAcApi.get<SearchProblemResponse>(
+    '/api/v3/search/problem',
+    {
+      params: {
+        query: `s@${userId}`,
+        page,
+      },
+    },
+  )
+
+  return response.data
+}
+
+export { fetchUserInfoApi, fetchUserProblemApi }
