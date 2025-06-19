@@ -6,6 +6,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components'
 import type { User } from '@/types'
 
 import { SearchUserForm } from './search-user-form'
+import { SelectUser } from './select-user'
 
 interface UserFilterProps {
   onClose: () => void
@@ -24,6 +25,36 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
     })
   }
 
+  const deleteUser = (userId: string) => {
+    setUsers((prev) => prev.filter((user) => user.userId !== userId))
+  }
+
+  const toggleUser = (userId: string) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.userId === userId) {
+          const selected = !user.isSelected
+
+          return { ...user, isSelected: selected }
+        }
+
+        return user
+      }),
+    )
+  }
+
+  const finishFetchingProblem = (userId: string) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.userId === userId) {
+          return { ...user, isFetchingProblem: false }
+        }
+
+        return user
+      }),
+    )
+  }
+
   return (
     <Card className="relative w-fit">
       <CardHeader>
@@ -37,11 +68,14 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
       >
         <Cross2Icon className="text-plum-200 group-hover:text-plum-400 size-5" />
       </Button>
-      <CardContent>
+      <CardContent className="flex flex-col gap-4">
         <SearchUserForm addUser={addUser} />
-        <div>
-          {users?.map((user) => <div key={user.userId}>{user.userId}</div>)}
-        </div>
+        <SelectUser
+          users={users}
+          deleteUser={deleteUser}
+          toggleUser={toggleUser}
+          finishFetchingProblem={finishFetchingProblem}
+        />
       </CardContent>
     </Card>
   )
