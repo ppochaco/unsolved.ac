@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Cross2Icon } from '@radix-ui/react-icons'
+import { useMutation } from '@tanstack/react-query'
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components'
+import { updateSelectedUsersApi } from '@/services'
 import type { User } from '@/types'
 
 import { SearchUserForm } from './search-user-form'
@@ -13,7 +15,17 @@ interface UserFilterProps {
 }
 
 export const UserFilter = ({ onClose }: UserFilterProps) => {
+  const { mutate: updateSelectedUsers } = useMutation({
+    mutationFn: updateSelectedUsersApi,
+  })
+
   const [users, setUsers] = useState<User[]>([])
+
+  const selectedUserIds = useMemo(() => {
+    return users
+      .filter((user) => user.isSelected && !user.isFetchingProblem)
+      .map((user) => user.userId)
+  }, [users])
 
   const addUser = (user: User) => {
     setUsers((prev) => {
@@ -43,17 +55,21 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
     )
   }
 
-  const finishFetchingProblem = (userId: string) => {
+  const finishFetchingProblem = (userId: string, problemIds: number[]) => {
     setUsers((prev) =>
       prev.map((user) => {
         if (user.userId === userId) {
-          return { ...user, isFetchingProblem: false }
+          return { ...user, isFetchingProblem: false, problemIds }
         }
 
         return user
       }),
     )
   }
+
+  useEffect(() => {
+    updateSelectedUsers(selectedUserIds)
+  }, [selectedUserIds, updateSelectedUsers])
 
   return (
     <Card className="relative w-fit">

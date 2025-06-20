@@ -34,6 +34,7 @@ export const SearchUserForm = ({ addUser }: SearchUserFormProps) => {
         levelId: info.tier,
         isSelected: true,
         isFetchingProblem: true,
+        problemIds: [],
       })
     },
     onError: (err: Error) => {

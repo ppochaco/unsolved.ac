@@ -10,7 +10,7 @@ interface SelectUserProps {
   users: User[]
   deleteUser: (userId: string) => void
   toggleUser: (userId: string) => void
-  finishFetchingProblem: (userId: string) => void
+  finishFetchingProblem: (userId: string, problemIds: number[]) => void
 }
 
 export const SelectUser = ({

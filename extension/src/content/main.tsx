@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 
+import { Spinner } from '@/components'
 import { queryClient } from '@/libs'
 
 import tailwindStyles from '../index.css?inline'
@@ -22,7 +24,9 @@ export const createShadowDOM = (
 
   root.render(
     <QueryClientProvider client={queryClient}>
-      <UserFilter onClose={onClose} />
+      <Suspense fallback={<Spinner />}>
+        <UserFilter onClose={onClose} />
+      </Suspense>
     </QueryClientProvider>,
   )
 

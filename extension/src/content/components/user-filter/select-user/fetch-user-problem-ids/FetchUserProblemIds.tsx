@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 
 import { Progress } from '@/components'
-import { userQueries } from '@/services'
+import { extensionQueries, storeProblemIdsApi, userQueries } from '@/services'
 import { fetchUserProblemIds } from '@/services'
 import { type User } from '@/types'
 
 interface FetchUserProblemIdsProps {
   user: User
-  finishFetchingProblem: (userId: string) => void
+  finishFetchingProblem: (userId: string, problemIds: number[]) => void
 }
 
 export const FetchUserProblemIds = ({
@@ -24,6 +24,20 @@ export const FetchUserProblemIds = ({
       getNextPageParam: (lastPage) => lastPage.nextPageToken,
       initialPageParam: 1,
     })
+
+  const { mutate: storeProblemIds } = useMutation({
+    mutationFn: ({
+      userId,
+      problemIds,
+    }: {
+      userId: string
+      problemIds: number[]
+    }) => storeProblemIdsApi(userId, problemIds),
+    mutationKey: extensionQueries.userProblemIds(user.userId),
+    onSuccess: () => {
+      finishFetchingProblem(user.userId, problemIds)
+    },
+  })
 
   const MAX_SIZE = data?.pages[0].problems.count ?? 0
   const problemIds = useMemo(
@@ -47,9 +61,9 @@ export const FetchUserProblemIds = ({
 
   useEffect(() => {
     if (isEnd) {
-      finishFetchingProblem(user.userId)
+      storeProblemIds({ userId: user.userId, problemIds })
     }
-  }, [isEnd, finishFetchingProblem, user.userId])
+  }, [isEnd, finishFetchingProblem, user.userId, problemIds, storeProblemIds])
 
   return (
     <div className="flex h-8 w-full items-center">
