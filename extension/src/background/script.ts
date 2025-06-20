@@ -6,6 +6,21 @@ import { fetchUserInfoApi } from '@/services'
 import { fetchUserProblemApi } from '@/services/api/solved-ac'
 import type { SolvedAcUser } from '@/types'
 
+type UpdateSelectedUsers = {
+  type: 'UPDATE_SELECTED_USERS'
+  userIds: string[]
+}
+
+type StoreUserProblemIds = {
+  type: 'STORE_USER_PROBLEM_IDS'
+  userId: string
+  problemIds: number[]
+}
+
+type GetAllUserProblemIds = {
+  type: 'GET_ALL_USER_PROBLEM_IDS'
+}
+
 type ToggleExtension = {
   type: 'TOGGLE_EXTENSION'
   isEnabled: boolean
@@ -26,6 +41,9 @@ export type BackgroundMessage =
   | ToggleExtension
   | FetchUserInfo
   | FetchUserProblem
+  | StoreUserProblemIds
+  | GetAllUserProblemIds
+  | UpdateSelectedUsers
 
 type UserProblemResponse = {
   count: number
@@ -36,6 +54,9 @@ type MessageResponseData = {
   TOGGLE_EXTENSION: boolean
   FETCH_USER_INFO: SolvedAcUser
   FETCH_USER_PROBLEM_IDS: UserProblemResponse
+  STORE_USER_PROBLEM_IDS: boolean
+  GET_ALL_USER_PROBLEM_IDS: Record<string, number[]>
+  UPDATE_SELECTED_USERS: boolean
 }
 
 type SuccessResponse<T extends BackgroundMessage['type']> = {
@@ -60,6 +81,38 @@ class StorageService {
 
   static async setEnabled(isEnabled: boolean) {
     await chrome.storage.local.set({ isEnabled })
+  }
+
+  static async storeUserProblemIds(userId: string, problemIds: number[]) {
+    const key = `user_problems_${userId}`
+    await chrome.storage.local.set({ [key]: problemIds })
+  }
+
+  static async getUserProblemIds(userId: string) {
+    const key = `user_problems_${userId}`
+    const result: { [key: string]: number[] } = await chrome.storage.local.get([
+      key,
+    ])
+    return result[key] || []
+  }
+
+  static async getAllUserProblemIds() {
+    const allData = await chrome.storage.local.get(null)
+    const userProblems: Record<string, number[]> = {}
+
+    for (const [key, value] of Object.entries(allData)) {
+      if (key.startsWith('user_problems_')) {
+        const userId = key.replace('user_problems_', '')
+        userProblems[userId] = value
+      }
+    }
+
+    return userProblems
+  }
+
+  static async deleteUserProblemIds(userId: string) {
+    const key = `user_problems_${userId}`
+    await chrome.storage.local.remove([key])
   }
 }
 
@@ -199,6 +252,66 @@ class MessageHandler {
     }
   }
 
+  static async storeUserProblemIds(
+    userId: string,
+    problemIds: number[],
+    sendResponse: (
+      response: BackgroundResponse<'STORE_USER_PROBLEM_IDS'>,
+    ) => void,
+  ) {
+    try {
+      await StorageService.storeUserProblemIds(userId, problemIds)
+
+      sendResponse({
+        success: true,
+        message: `${userId} 문제 ID 저장`,
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async getAllUserProblemIds(
+    sendResponse: (
+      response: BackgroundResponse<'GET_ALL_USER_PROBLEM_IDS'>,
+    ) => void,
+  ) {
+    try {
+      const allUserProblems = await StorageService.getAllUserProblemIds()
+
+      sendResponse({
+        success: true,
+        message: '모든 유저 문제 ID 조회',
+        data: allUserProblems,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async updateSelectedUsers(
+    selectedUserIds: string[],
+    sendResponse: (
+      response: BackgroundResponse<'UPDATE_SELECTED_USERS'>,
+    ) => void,
+  ) {
+    try {
+      await TabService.sendMessageToAllTabs({
+        type: 'SELECTED_USERS_UPDATED',
+        selectedUserIds,
+      })
+
+      sendResponse({
+        success: true,
+        message: '선택된 유저 재설정',
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
   private static async ensureSolvedAcPage() {
     const isSolvedAcPage = await TabService.isSolvedAcProblemsPage()
 
@@ -232,6 +345,9 @@ chrome.runtime.onMessage.addListener(
         | SuccessResponse<'TOGGLE_EXTENSION'>
         | SuccessResponse<'FETCH_USER_INFO'>
         | SuccessResponse<'FETCH_USER_PROBLEM_IDS'>
+        | SuccessResponse<'STORE_USER_PROBLEM_IDS'>
+        | SuccessResponse<'GET_ALL_USER_PROBLEM_IDS'>
+        | SuccessResponse<'UPDATE_SELECTED_USERS'>
         | ErrorResponse,
     ) => void,
   ) => {
@@ -251,6 +367,25 @@ chrome.runtime.onMessage.addListener(
         message.page,
         sendResponse,
       )
+      return true
+    }
+
+    if (message.type === 'STORE_USER_PROBLEM_IDS') {
+      MessageHandler.storeUserProblemIds(
+        message.userId,
+        message.problemIds,
+        sendResponse,
+      )
+      return true
+    }
+
+    if (message.type === 'GET_ALL_USER_PROBLEM_IDS') {
+      MessageHandler.getAllUserProblemIds(sendResponse)
+      return true
+    }
+
+    if (message.type === 'UPDATE_SELECTED_USERS') {
+      MessageHandler.updateSelectedUsers(message.userIds, sendResponse)
       return true
     }
 

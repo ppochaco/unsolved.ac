@@ -1,10 +1,13 @@
 export {
   getExtensionEnabled,
+  getAllUserProblemIds,
   extensionQueries,
   toggleIsEnabled,
+  storeProblemIdsApi,
+  updateSelectedUsersApi,
   fetchUserInfo,
-  userQueries,
   fetchUserProblemIds,
+  userQueries,
 } from './chrome'
 
 export { fetchUserInfoApi } from './solved-ac'

@@ -5,9 +5,26 @@ const getExtensionEnabled = async () => {
   return Boolean(isEnabled)
 }
 
+const getAllUserProblemIds = async () => {
+  const response: BackgroundResponse<'GET_ALL_USER_PROBLEM_IDS'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'GET_ALL_USER_PROBLEM_IDS',
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
+  }
+
+  return response.data
+}
+
 const extensionQueries = {
   all: () => ['extension'] as const,
   enabled: () => [...extensionQueries.all(), 'enabled'] as const,
+  allUserProblemIds: () =>
+    [...extensionQueries.all(), 'user-problem-ids'] as const,
+  userProblemIds: (userId: string) =>
+    [...extensionQueries.allUserProblemIds(), userId] as const,
 }
 
 const toggleIsEnabled = async (isEnabled: boolean) => {
@@ -15,6 +32,35 @@ const toggleIsEnabled = async (isEnabled: boolean) => {
     await chrome.runtime.sendMessage<BackgroundMessage>({
       type: 'TOGGLE_EXTENSION',
       isEnabled,
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
+  }
+
+  return response.data
+}
+
+const storeProblemIdsApi = async (userId: string, problemIds: number[]) => {
+  const response: BackgroundResponse<'STORE_USER_PROBLEM_IDS'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'STORE_USER_PROBLEM_IDS',
+      userId,
+      problemIds,
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
+  }
+
+  return response.data
+}
+
+const updateSelectedUsersApi = async (userIds: string[]) => {
+  const response: BackgroundResponse<'UPDATE_SELECTED_USERS'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'UPDATE_SELECTED_USERS',
+      userIds,
     })
 
   if (!response.success) {
@@ -69,8 +115,11 @@ const userQueries = {
 
 export {
   getExtensionEnabled,
+  getAllUserProblemIds,
   extensionQueries,
   toggleIsEnabled,
+  storeProblemIdsApi,
+  updateSelectedUsersApi,
   fetchUserInfo,
   fetchUserProblemIds,
   userQueries,
