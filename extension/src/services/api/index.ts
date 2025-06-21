@@ -14,4 +14,4 @@ export {
   userQueries,
 } from './chrome'
 
-export { fetchUserInfoApi } from './solved-ac'
+export { fetchUserInfoApi, fetchUserProblemApi } from './solved-ac'

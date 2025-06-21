@@ -1,5 +1,4 @@
-import type { BackgroundMessage, BackgroundResponse } from '@/background'
-import type { User } from '@/types'
+import type { BackgroundMessage, BackgroundResponse, User } from '@/types'
 
 const getExtensionEnabledApi = async () => {
   const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
