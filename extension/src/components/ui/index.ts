@@ -11,6 +11,12 @@ export {
 } from './card'
 export { Input } from './input'
 export { Label } from './label'
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+} from './popover'
 export { Progress } from './progress'
 export { Spinner } from './spinner'
 export { Switch } from './switch'
