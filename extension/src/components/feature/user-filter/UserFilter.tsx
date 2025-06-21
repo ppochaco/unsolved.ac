@@ -1,9 +1,22 @@
 import { useEffect } from 'react'
 
-import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons'
+import {
+  CheckIcon,
+  Cross2Icon,
+  MagnifyingGlassIcon,
+  PersonIcon,
+} from '@radix-ui/react-icons'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components'
+import {
+  Button,
+  Card,
+  CardContent,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components'
+import { usePortalContainer } from '@/components'
 import { cn, queryClient } from '@/libs'
 import {
   addUserApi,
@@ -17,12 +30,11 @@ import type { ContentMessage, UserProblemIds } from '@/types'
 
 import { FetchUserProblemIds } from './fetch-user-problem-ids'
 import { SearchUserForm } from './search-user-form'
+import { SolvedStatusList } from './solved-status-list'
 
-interface UserFilterProps {
-  onClose: () => void
-}
+export const UserFilter = () => {
+  const portalContainer = usePortalContainer()
 
-export const UserFilter = ({ onClose }: UserFilterProps) => {
   const { data: users, refetch: refetchUsers } = useSuspenseQuery({
     queryKey: storageQueries.users(),
     queryFn: getUsersApi,
@@ -75,19 +87,21 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
   }, [refetchUsers])
 
   return (
-    <Card className="relative w-fit">
-      <CardHeader>
-        <CardTitle className="text-center text-lg">unsolved-ac</CardTitle>
-      </CardHeader>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        className="group absolute top-2 right-2 rounded-full"
+    <Popover>
+      <PopoverTrigger>
+        <Button
+          variant="outline"
+          className="group text-primary-700 hover:text-primary-700 border-primary-50 relative ml-10 h-10 w-10 rounded-full hover:cursor-pointer"
+        >
+          <PersonIcon className="absolute right-2.5 size-5.5" />
+          <MagnifyingGlassIcon className="absolute right-2 bottom-2 size-3 rounded-full bg-white transition-all group-hover:bg-[#FAF7FE]" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="mt-5 mr-2 flex w-sm flex-col gap-4"
+        container={portalContainer}
       >
-        <Cross2Icon className="text-plum-200 group-hover:text-plum-400 size-5" />
-      </Button>
-      <CardContent className="flex flex-col gap-4">
+        <SolvedStatusList />
         <SearchUserForm addUser={addUser} />
         <div className="flex w-full flex-col gap-2">
           <div className="flex gap-1">
@@ -152,7 +166,7 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
             ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </PopoverContent>
+    </Popover>
   )
 }

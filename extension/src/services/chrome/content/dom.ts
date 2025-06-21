@@ -7,7 +7,7 @@ export class DOMService {
   private static shadowRoot: ShadowRoot | null = null
   private static reactRoot: Root | null = null
 
-  public static showShadowDOM(onDisable: () => void) {
+  public static showShadowDOM() {
     if (this.shadowHost && document.body.contains(this.shadowHost)) {
       return
     }
@@ -20,13 +20,13 @@ export class DOMService {
     this.shadowHost.id = 'unsolved-ac-extension'
     this.shadowHost.style.cssText = `
       position: fixed;
-      top: 82px;
-      right: 10px;
+      top: 20px;
+      right: 70px;
       z-index: 10000000;
     `
 
     this.shadowRoot = this.shadowHost.attachShadow({ mode: 'closed' })
-    this.reactRoot = createShadowDOM(this.shadowRoot, onDisable)
+    this.reactRoot = createShadowDOM(this.shadowRoot)
 
     document.body.appendChild(this.shadowHost)
   }

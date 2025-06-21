@@ -1,3 +1,4 @@
+import { SOLVED_AC_PROBLEMS_URL } from '@/constants'
 import { getExtensionEnabledApi } from '@/services/api'
 import type { User } from '@/types'
 
@@ -7,7 +8,6 @@ import { StyleService } from './style'
 
 export class ContentService {
   private static isInitialized = false
-  private static isEnabled = false
 
   static initialize() {
     if (this.isInitialized) return
@@ -31,37 +31,44 @@ export class ContentService {
   }
 
   public static async enable() {
-    DOMService.showShadowDOM(() => this.disable())
-    await this.loadInitialData()
+    DOMService.showShadowDOM()
+    await DataService.loadUsers()
+    this.applyColors()
   }
 
   public static async disable() {
-    this.isEnabled = false
     StyleService.resetAllStyles()
     DOMService.removeShadowDOM()
-  }
-
-  private static async loadInitialData() {
-    await DataService.loadUsers()
-    this.applyColors()
   }
 
   public static async updateUsers(users: User[]) {
     await DataService.updateUsers(users)
 
-    const currentEnabled = await getExtensionEnabledApi()
-    this.isEnabled = currentEnabled
+    const isEnabled = await getExtensionEnabledApi()
 
-    const shouldApplyColors = this.isEnabled || this.hasShadowDOM()
-
-    if (shouldApplyColors) {
+    if (isEnabled || this.hasShadowDOM()) {
       this.applyColors()
     }
   }
 
-  public static applyColors() {
-    if (!window.location.href.includes('solved.ac')) {
+  public static async applyColors() {
+    if (!this.isProblemsPage()) {
+      StyleService.resetAllStyles()
+      DOMService.removeShadowDOM()
       return
+    }
+
+    const isEnabled = await getExtensionEnabledApi()
+
+    if (!isEnabled) {
+      StyleService.resetAllStyles()
+      DOMService.removeShadowDOM()
+      return
+    }
+
+    if (!this.hasShadowDOM()) {
+      DOMService.showShadowDOM()
+      await DataService.loadUsers()
     }
 
     setTimeout(() => {
@@ -70,10 +77,16 @@ export class ContentService {
     }, 100)
   }
 
-  private static hasShadowDOM(): boolean {
+  private static hasShadowDOM() {
     const shadowHost = document.getElementById('unsolved-ac-extension')
     const exists = shadowHost && document.body.contains(shadowHost)
 
     return !!exists
+  }
+
+  private static isProblemsPage() {
+    const url = window.location.href
+
+    return url.startsWith(SOLVED_AC_PROBLEMS_URL)
   }
 }
