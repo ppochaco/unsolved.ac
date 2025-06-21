@@ -13,11 +13,6 @@ export class TabService {
     return currentTab
   }
 
-  static async isSolvedAcProblemsPage(url?: string) {
-    const urlToCheck = url ?? (await this.getCurrentTab()).url
-    return urlToCheck?.includes('solved.ac/problems') ?? false
-  }
-
   static async navigateToProblems() {
     await chrome.tabs.create({
       url: SOLVED_AC_PROBLEMS_URL,
