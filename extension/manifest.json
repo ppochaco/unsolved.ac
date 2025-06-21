@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "unsolved ac",
-  "version": "0.1.0",
-  "description": "모두 안 푼 백준 문제 찾기",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "version": "1.0.0",
+  "description": "unsolved 백준 문제 찾기",
+  "permissions": ["storage", "scripting"],
   "host_permissions": ["https://solved.ac/problems*"],
   "background": {
     "service_worker": "src/services/chrome/background-script.ts",
