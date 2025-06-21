@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": ["https://solved.ac/problems*"],
-      "js": ["src/content/script.ts"]
+      "js": ["src/services/chrome/content-script.ts"]
     }
   ],
   "action": {

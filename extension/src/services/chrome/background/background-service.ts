@@ -17,8 +17,12 @@ export class BackgroundService {
     sendResponse: (response: BackgroundResponse<'TOGGLE_EXTENSION'>) => void,
   ) {
     try {
-      await this.ensureSolvedAcPage()
-      await this.updateExtensionEnabled(isEnabled)
+      await StorageService.setEnabled(isEnabled)
+
+      await TabService.sendMessageToAllTabs({
+        type: 'EXTENSION_TOGGLED',
+        isEnabled,
+      })
 
       const successMessage = isEnabled ? '익스텐션 활성화' : '익스텐션 비활성화'
 
@@ -236,25 +240,6 @@ export class BackgroundService {
     } catch (error) {
       ErrorHandler.handleCommonError(error, sendResponse)
     }
-  }
-
-  private static async ensureSolvedAcPage() {
-    const isSolvedAcPage = await TabService.isSolvedAcProblemsPage()
-
-    if (!isSolvedAcPage) {
-      await TabService.navigateToProblems()
-      chrome.action.openPopup()
-    }
-  }
-
-  private static async updateExtensionEnabled(isEnabled: boolean) {
-    await Promise.all([
-      StorageService.setEnabled(isEnabled),
-      TabService.sendMessageToAllTabs({
-        type: 'EXTENSION_TOGGLED',
-        isEnabled,
-      }),
-    ])
   }
 }
 
