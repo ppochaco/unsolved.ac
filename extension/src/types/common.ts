@@ -4,4 +4,10 @@ export type User = {
   levelId: number
   isSelected: boolean
   isFetchingProblem: boolean
+  problemIds: number[]
+}
+
+export type UserProblemIds = {
+  userId: string
+  problemIds: number[]
 }

@@ -3,21 +3,21 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Label, Switch } from '@/components'
 import { queryClient } from '@/libs'
 import {
-  extensionQueries,
-  getExtensionEnabled,
-  toggleIsEnabled,
+  getExtensionEnabledApi,
+  storageQueries,
+  toggleIsEnabledApi,
 } from '@/services'
 
 export const Popup = () => {
   const { data: isEnabled } = useSuspenseQuery({
-    queryKey: extensionQueries.enabled(),
-    queryFn: getExtensionEnabled,
+    queryKey: storageQueries.enabled(),
+    queryFn: getExtensionEnabledApi,
   })
 
   const { mutate: toggle, status } = useMutation({
-    mutationFn: toggleIsEnabled,
+    mutationFn: toggleIsEnabledApi,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: extensionQueries.enabled() })
+      queryClient.invalidateQueries({ queryKey: storageQueries.enabled() })
     },
   })
 

@@ -1,1 +1,1 @@
-export { type ContentMessage } from './script'
+export { createShadowDOM } from './main'
