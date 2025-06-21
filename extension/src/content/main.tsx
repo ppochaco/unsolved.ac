@@ -3,11 +3,10 @@ import { createRoot } from 'react-dom/client'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { PortalContainerContext } from '@/components'
+import { PortalContainerContext, UserFilter } from '@/components'
 import { queryClient } from '@/libs'
 
 import tailwindStyles from '../index.css?inline'
-import { UserFilter } from './components'
 
 const createShadowDOM = (shadowRoot: ShadowRoot) => {
   const reactContainer = document.createElement('div')
