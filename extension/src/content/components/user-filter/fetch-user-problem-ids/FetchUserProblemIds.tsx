@@ -3,13 +3,23 @@ import { useEffect, useMemo, useState } from 'react'
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 
 import { Progress } from '@/components'
-import { extensionQueries, storeProblemIdsApi, userQueries } from '@/services'
-import { fetchUserProblemIds } from '@/services'
+import {
+  addUserProblemIdsApi,
+  fetchUserProblemIdsApi,
+  storageQueries,
+  userQueries,
+} from '@/services'
 import { type User } from '@/types'
 
 interface FetchUserProblemIdsProps {
   user: User
-  finishFetchingProblem: (userId: string, problemIds: number[]) => void
+  finishFetchingProblem: ({
+    userId,
+    problemIds,
+  }: {
+    userId: string
+    problemIds: number[]
+  }) => void
 }
 
 export const FetchUserProblemIds = ({
@@ -18,9 +28,9 @@ export const FetchUserProblemIds = ({
 }: FetchUserProblemIdsProps) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
-      queryKey: userQueries.problemId(user.userId),
+      queryKey: userQueries.problemIds(user.userId),
       queryFn: ({ pageParam = 1 }) =>
-        fetchUserProblemIds(user.userId, pageParam),
+        fetchUserProblemIdsApi(user.userId, pageParam),
       getNextPageParam: (lastPage) => lastPage.nextPageToken,
       initialPageParam: 1,
     })
@@ -32,10 +42,10 @@ export const FetchUserProblemIds = ({
     }: {
       userId: string
       problemIds: number[]
-    }) => storeProblemIdsApi(userId, problemIds),
-    mutationKey: extensionQueries.userProblemIds(user.userId),
+    }) => addUserProblemIdsApi(userId, problemIds),
+    mutationKey: storageQueries.userProblemIds(user.userId),
     onSuccess: () => {
-      finishFetchingProblem(user.userId, problemIds)
+      finishFetchingProblem({ userId: user.userId, problemIds })
     },
   })
 

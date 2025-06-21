@@ -1,10 +1,11 @@
 import type { Root } from 'react-dom/client'
 
 import {
-  getAllUserProblemIds,
-  getExtensionEnabled,
-  toggleIsEnabled,
+  getAllUserProblemIdsApi,
+  getExtensionEnabledApi,
+  toggleIsEnabledApi,
 } from '@/services'
+import type { User } from '@/types'
 
 import { createShadowDOM } from './main'
 
@@ -13,20 +14,24 @@ type ToggleExtension = {
   isEnabled: boolean
 }
 
-type UpdateSelectedUsers = {
-  type: 'SELECTED_USERS_UPDATED'
-  selectedUserIds: string[]
+type UsersUpdated = {
+  type: 'USERS_UPDATED'
+  users: User[]
 }
 
-export type ContentMessage = ToggleExtension | UpdateSelectedUsers
+export type ContentMessage = ToggleExtension | UsersUpdated
+interface UserProblemData {
+  userId: string
+  problemIds: number[]
+}
 
 class UnsolvedACExtension {
   private shadowHost: HTMLDivElement | null = null
   private shadowRoot: ShadowRoot | null = null
   private reactRoot: Root | null = null
   private isInitialized = false
-  private selectedUserIds: string[] = []
-  private userProblemIds: Array<{ userId: string; problemIds: number[] }> = []
+  private allUsers: User[] = []
+  private userProblemIds: UserProblemData[] = []
 
   constructor() {
     this.initialize()
@@ -47,20 +52,21 @@ class UnsolvedACExtension {
   }
 
   private async enableExtension() {
-    const isEnabled = await getExtensionEnabled()
+    const isEnabled = await getExtensionEnabledApi()
 
     if (isEnabled) {
       this.showShadowDOM()
+      await this.loadInitialData()
     }
   }
 
   private async disableExtension() {
-    await toggleIsEnabled(false)
+    await toggleIsEnabledApi(false)
     this.removeShadowDOM()
     this.resetAllStyles()
   }
 
-  showShadowDOM() {
+  public showShadowDOM() {
     if (this.shadowHost) return
 
     this.shadowHost = document.createElement('div')
@@ -81,7 +87,7 @@ class UnsolvedACExtension {
     document.body.appendChild(this.shadowHost)
   }
 
-  removeShadowDOM() {
+  public removeShadowDOM() {
     if (this.reactRoot) {
       this.reactRoot.unmount()
       this.reactRoot = null
@@ -95,42 +101,53 @@ class UnsolvedACExtension {
     this.shadowRoot = null
   }
 
-  async updateSelectedUsers(selectedUserIds: string[]) {
-    this.selectedUserIds = selectedUserIds
+  public async loadInitialData() {
+    const usersResponse = await chrome.runtime.sendMessage({
+      type: 'GET_USERS',
+    })
 
-    await this.loadUserProblemIdsFromStorage()
+    if (usersResponse.success) {
+      await this.updateUsers(usersResponse.data)
+    }
+  }
 
+  public async updateUsers(users: User[]) {
+    this.allUsers = users
+
+    await this.loadSelectedUserProblemIds()
+
+    this.applyColors()
+  }
+
+  public applyColors() {
     setTimeout(() => {
       this.colorProblemIds()
     }, 100)
   }
 
-  private async loadUserProblemIdsFromStorage() {
-    const allUserProblems = await getAllUserProblemIds()
+  private async loadSelectedUserProblemIds() {
+    const allUserProblems = await getAllUserProblemIdsApi()
 
-    const selectedUserProblems: Array<{
-      userId: string
-      problemIds: number[]
-    }> = []
+    const selectedUsers = this.allUsers.filter(
+      (user) => user.isSelected && !user.isFetchingProblem,
+    )
 
-    for (const userId of this.selectedUserIds) {
-      const problemIds = allUserProblems[userId]
-      if (problemIds.length > 0) {
-        selectedUserProblems.push({ userId, problemIds })
-      }
-    }
-
-    this.userProblemIds = selectedUserProblems
+    this.userProblemIds = selectedUsers
+      .map((user) => ({
+        userId: user.userId,
+        problemIds: allUserProblems[user.userId] || [],
+      }))
+      .filter((userData) => userData.problemIds.length > 0)
   }
 
   private colorProblemIds() {
     this.resetAllStyles()
 
     const table = document.querySelector('table')
-
     if (!table) return
 
     const links = table.querySelectorAll('tr td:first-child a')
+    if (!links.length) return
 
     const { unionSet, intersectionSet } = this.calculateSets()
 
@@ -142,11 +159,13 @@ class UnsolvedACExtension {
         if (match) {
           const problemId = parseInt(match[1])
 
-          const color = unionSet.has(problemId)
-            ? intersectionSet.has(problemId)
-              ? 'black'
-              : 'gray'
-            : 'purple'
+          let color: 'black' | 'gray' | 'purple'
+
+          if (unionSet.has(problemId)) {
+            color = intersectionSet.has(problemId) ? 'black' : 'gray'
+          } else {
+            color = 'purple'
+          }
 
           this.applyColorStyle(link as HTMLElement, color)
         }
@@ -155,27 +174,22 @@ class UnsolvedACExtension {
   }
 
   private calculateSets() {
-    const unionSet = new Set<number>()
+    const unionSet = new Set(
+      this.userProblemIds.flatMap(({ problemIds }) => problemIds),
+    )
     let intersectionSet = new Set<number>()
 
     if (this.userProblemIds.length === 0) {
       return { unionSet, intersectionSet }
     }
 
-    this.userProblemIds.forEach(({ problemIds }) => {
-      problemIds.forEach((id) => unionSet.add(id))
-    })
+    intersectionSet = new Set(this.userProblemIds[0].problemIds)
 
-    for (const { problemIds } of this.userProblemIds) {
-      const currentSet = new Set(problemIds)
-
-      if (intersectionSet.size === 0) {
-        intersectionSet = currentSet
-      } else {
-        intersectionSet = new Set(
-          [...intersectionSet].filter((id) => currentSet.has(id)),
-        )
-      }
+    for (let i = 1; i < this.userProblemIds.length; i++) {
+      const currentSet = new Set(this.userProblemIds[i].problemIds)
+      intersectionSet = new Set(
+        [...intersectionSet].filter((id) => currentSet.has(id)),
+      )
     }
 
     return { unionSet, intersectionSet }
@@ -218,17 +232,35 @@ class UnsolvedACExtension {
 const extension = new UnsolvedACExtension()
 
 chrome.runtime.onMessage.addListener((message: ContentMessage) => {
-  if (message.type === 'EXTENSION_TOGGLED') {
-    if (message.isEnabled) {
-      extension.showShadowDOM()
-    } else {
-      extension.removeShadowDOM()
-    }
-    return
-  }
+  switch (message.type) {
+    case 'EXTENSION_TOGGLED':
+      if (message.isEnabled) {
+        extension.showShadowDOM()
+        extension.loadInitialData()
+      } else {
+        extension.removeShadowDOM()
+      }
+      break
 
-  if (message.type === 'SELECTED_USERS_UPDATED') {
-    extension.updateSelectedUsers(message.selectedUserIds)
-    return
+    case 'USERS_UPDATED':
+      extension.updateUsers(message.users)
+      break
   }
 })
+
+let lastUrl = location.href
+new MutationObserver(() => {
+  const currentUrl = location.href
+  if (currentUrl !== lastUrl) {
+    lastUrl = currentUrl
+    extension.applyColors()
+  }
+}).observe(document, { subtree: true, childList: true })
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    extension.applyColors()
+  })
+} else {
+  extension.applyColors()
+}

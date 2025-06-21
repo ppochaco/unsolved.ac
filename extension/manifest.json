@@ -4,14 +4,14 @@
   "version": "0.1.0",
   "description": "모두 안 푼 백준 문제 찾기",
   "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://solved.ac/problems"],
+  "host_permissions": ["https://solved.ac/problems*"],
   "background": {
     "service_worker": "src/background/script.ts",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["https://solved.ac/problems"],
+      "matches": ["https://solved.ac/problems*"],
       "js": ["src/content/script.ts"]
     }
   ],

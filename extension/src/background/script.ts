@@ -4,15 +4,51 @@ import { ERROR_MESSAGES, SOLVED_AC_PROBLEMS_URL } from '@/constants'
 import type { ContentMessage } from '@/content'
 import { fetchUserInfoApi } from '@/services'
 import { fetchUserProblemApi } from '@/services/api/solved-ac'
-import type { SolvedAcUser } from '@/types'
+import type { SolvedAcUser, User } from '@/types'
 
-type UpdateSelectedUsers = {
-  type: 'UPDATE_SELECTED_USERS'
-  userIds: string[]
+type ToggleExtension = {
+  type: 'TOGGLE_EXTENSION'
+  isEnabled: boolean
 }
 
-type StoreUserProblemIds = {
-  type: 'STORE_USER_PROBLEM_IDS'
+type GetUserInfo = {
+  type: 'GET_USER_INFO'
+  userId: string
+}
+
+type FetchUserProblemIds = {
+  type: 'FETCH_USER_PROBLEM_IDS'
+  userId: string
+  page: number
+}
+
+type AddUser = {
+  type: 'ADD_USER'
+  user: Omit<User, 'isSelected' | 'isFetchingProblem'>
+}
+
+type RemoveUser = {
+  type: 'REMOVE_USER'
+  userId: string
+}
+
+type ToggleUserSelection = {
+  type: 'TOGGLE_USER_SELECTION'
+  userId: string
+}
+
+type SetUserFetchingStatus = {
+  type: 'SET_USER_FETCHING_STATUS'
+  userId: string
+  problemIds?: number[]
+}
+
+type GetUsers = {
+  type: 'GET_USERS'
+}
+
+type AddUserProblemIds = {
+  type: 'ADD_USER_PROBLEM_IDS'
   userId: string
   problemIds: number[]
 }
@@ -21,29 +57,17 @@ type GetAllUserProblemIds = {
   type: 'GET_ALL_USER_PROBLEM_IDS'
 }
 
-type ToggleExtension = {
-  type: 'TOGGLE_EXTENSION'
-  isEnabled: boolean
-}
-
-type FetchUserInfo = {
-  type: 'FETCH_USER_INFO'
-  userId: string
-}
-
-type FetchUserProblem = {
-  type: 'FETCH_USER_PROBLEM_IDS'
-  userId: string
-  page: number
-}
-
 export type BackgroundMessage =
   | ToggleExtension
-  | FetchUserInfo
-  | FetchUserProblem
-  | StoreUserProblemIds
+  | GetUserInfo
+  | FetchUserProblemIds
+  | AddUser
+  | RemoveUser
+  | ToggleUserSelection
+  | SetUserFetchingStatus
+  | GetUsers
+  | AddUserProblemIds
   | GetAllUserProblemIds
-  | UpdateSelectedUsers
 
 type UserProblemResponse = {
   count: number
@@ -52,11 +76,17 @@ type UserProblemResponse = {
 
 type MessageResponseData = {
   TOGGLE_EXTENSION: boolean
-  FETCH_USER_INFO: SolvedAcUser
+  GET_USER_INFO: SolvedAcUser
   FETCH_USER_PROBLEM_IDS: UserProblemResponse
-  STORE_USER_PROBLEM_IDS: boolean
+  ADD_USER: boolean
+  REMOVE_USER: boolean
+  TOGGLE_USER_SELECTION: boolean
+  SET_USER_FETCHING_STATUS: boolean
+  GET_USERS: User[]
+  ADD_USER_PROBLEM_IDS: boolean
+  REMOVE_USER_PROBLEM_IDS: boolean
   GET_ALL_USER_PROBLEM_IDS: Record<string, number[]>
-  UPDATE_SELECTED_USERS: boolean
+  GET_USER_PROBLEM_IDS: number[]
 }
 
 type SuccessResponse<T extends BackgroundMessage['type']> = {
@@ -76,43 +106,119 @@ export type BackgroundResponse<T extends BackgroundMessage['type']> =
 
 class StorageService {
   static async initializeStorage() {
-    await chrome.storage.local.set({ isEnabled: false })
+    await chrome.storage.local.set({
+      isEnabled: false,
+      users: [],
+    })
   }
 
   static async setEnabled(isEnabled: boolean) {
     await chrome.storage.local.set({ isEnabled })
   }
 
-  static async storeUserProblemIds(userId: string, problemIds: number[]) {
-    const key = `user_problems_${userId}`
+  static async addUser(
+    userData: Omit<User, 'isSelected' | 'isFetchingProblem'>,
+  ) {
+    const users = await this.getUsers()
+
+    const usersIndex = users.findIndex((u) => u.userId === userData.userId)
+
+    const newUser: User = {
+      ...userData,
+      isSelected: true,
+      isFetchingProblem: true,
+    }
+
+    if (0 <= usersIndex) {
+      users[usersIndex] = { ...users[usersIndex], ...newUser }
+    } else {
+      users.push(newUser)
+    }
+
+    await chrome.storage.local.set({ users })
+    await this.notifyUsersChanged(users)
+  }
+
+  static async removeUser(userId: string) {
+    const users = await this.getUsers()
+    const filteredUsers = users.filter((u) => u.userId !== userId)
+
+    await chrome.storage.local.set({ users: filteredUsers })
+
+    await this.removeUserProblemIds(userId)
+    await this.notifyUsersChanged(filteredUsers)
+  }
+
+  static async toggleUserSelection(userId: string) {
+    const users = await this.getUsers()
+    const userIndex = users.findIndex((u) => u.userId === userId)
+
+    if (0 <= userIndex) {
+      const user = users[userIndex]
+      const newIsSelected = !user.isSelected
+
+      users[userIndex] = { ...user, isSelected: newIsSelected }
+
+      await chrome.storage.local.set({ users })
+      await this.notifyUsersChanged(users)
+    }
+  }
+
+  static async setUserFetchingStatusFalse(
+    userId: string,
+    problemIds?: number[],
+  ) {
+    const users = await this.getUsers()
+    const userIndex = users.findIndex((u) => u.userId === userId)
+
+    if (userIndex >= 0) {
+      users[userIndex] = { ...users[userIndex], isFetchingProblem: false }
+      await chrome.storage.local.set({ users })
+
+      if (problemIds) {
+        await this.addUserProblemIds(userId, problemIds)
+      }
+
+      await this.notifyUsersChanged(users)
+    }
+  }
+
+  static async getUsers() {
+    const result: Record<string, User[]> = await chrome.storage.local.get([
+      'users',
+    ])
+    return result.users || []
+  }
+
+  static async addUserProblemIds(userId: string, problemIds: number[]) {
+    const key = `userProblems_${userId}`
     await chrome.storage.local.set({ [key]: problemIds })
   }
 
-  static async getUserProblemIds(userId: string) {
-    const key = `user_problems_${userId}`
-    const result: { [key: string]: number[] } = await chrome.storage.local.get([
-      key,
-    ])
-    return result[key] || []
+  private static async removeUserProblemIds(userId: string) {
+    const key = `userProblems_${userId}`
+    await chrome.storage.local.remove([key])
   }
 
   static async getAllUserProblemIds() {
-    const allData = await chrome.storage.local.get(null)
-    const userProblems: Record<string, number[]> = {}
+    const allData = await chrome.storage.local.get()
+    const userProblemsMap = new Map<string, number[]>()
 
     for (const [key, value] of Object.entries(allData)) {
-      if (key.startsWith('user_problems_')) {
-        const userId = key.replace('user_problems_', '')
-        userProblems[userId] = value
+      if (key.startsWith('userProblems_')) {
+        const userId = key.replace('userProblems_', '')
+        userProblemsMap.set(userId, value as number[])
       }
     }
 
-    return userProblems
+    return userProblemsMap
   }
 
-  static async deleteUserProblemIds(userId: string) {
-    const key = `user_problems_${userId}`
-    await chrome.storage.local.remove([key])
+  private static async notifyUsersChanged(users: User[]) {
+    await TabService.sendMessageToAllTabs({
+      type: 'USERS_UPDATED',
+      users,
+    })
   }
 }
 
@@ -128,9 +234,9 @@ class TabService {
     return currentTab
   }
 
-  static async isSolvedAcProblemsPage() {
-    const currentTab = await this.getCurrentTab()
-    return currentTab.url?.includes('solved.ac/problems') ?? false
+  static async isSolvedAcProblemsPage(url?: string) {
+    const urlToCheck = url ?? (await this.getCurrentTab()).url
+    return urlToCheck?.includes('solved.ac/problems') ?? false
   }
 
   static async navigateToProblems() {
@@ -141,7 +247,7 @@ class TabService {
   }
 
   static async sendMessageToAllTabs(message: ContentMessage) {
-    const tabs = await chrome.tabs.query({ url: SOLVED_AC_PROBLEMS_URL })
+    const tabs = await chrome.tabs.query({ url: '*://solved.ac/problems*' })
     for (const tab of tabs) {
       if (tab.id) {
         await chrome.tabs.sendMessage(tab.id, message)
@@ -171,33 +277,9 @@ class ErrorHandler {
 }
 
 class MessageHandler {
-  static async fetchUserProblemIds(
+  static async getUserInfo(
     userId: string,
-    page: number,
-    sendResponse: (
-      response: BackgroundResponse<'FETCH_USER_PROBLEM_IDS'>,
-    ) => void,
-  ) {
-    try {
-      const data = await fetchUserProblemApi(userId, page)
-      const problemIds = data.items.map((p) => p.problemId)
-
-      sendResponse({
-        success: true,
-        message: `${userId} solved problem ids`,
-        data: {
-          count: data.count,
-          problemIds,
-        },
-      })
-    } catch (error) {
-      ErrorHandler.handleCommonError(error, sendResponse)
-    }
-  }
-
-  static async fetchUserInfo(
-    userId: string,
-    sendResponse: (response: BackgroundResponse<'FETCH_USER_INFO'>) => void,
+    sendResponse: (response: BackgroundResponse<'GET_USER_INFO'>) => void,
   ) {
     try {
       const data = await fetchUserInfoApi(userId)
@@ -236,7 +318,7 @@ class MessageHandler {
   ) {
     try {
       await this.ensureSolvedAcPage()
-      await this.updateExtensionisEnabled(message.isEnabled)
+      await this.updateExtensionEnabled(message.isEnabled)
 
       const successMessage = message.isEnabled
         ? '익스텐션 활성화'
@@ -252,16 +334,123 @@ class MessageHandler {
     }
   }
 
-  static async storeUserProblemIds(
+  static async fetchUserProblemIds(
     userId: string,
-    problemIds: number[],
+    page: number,
     sendResponse: (
-      response: BackgroundResponse<'STORE_USER_PROBLEM_IDS'>,
+      response: BackgroundResponse<'FETCH_USER_PROBLEM_IDS'>,
     ) => void,
   ) {
     try {
-      await StorageService.storeUserProblemIds(userId, problemIds)
+      const data = await fetchUserProblemApi(userId, page)
+      const problemIds = data.items.map((p) => p.problemId)
 
+      sendResponse({
+        success: true,
+        message: `${userId} solved problem ids`,
+        data: {
+          count: data.count,
+          problemIds,
+        },
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async addUser(
+    userData: Omit<User, 'isSelected' | 'isFetchingProblem'>,
+    sendResponse: (response: BackgroundResponse<'ADD_USER'>) => void,
+  ) {
+    try {
+      await StorageService.addUser(userData)
+      sendResponse({
+        success: true,
+        message: `${userData.userId} 추가`,
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async removeUser(
+    userId: string,
+    sendResponse: (response: BackgroundResponse<'REMOVE_USER'>) => void,
+  ) {
+    try {
+      await StorageService.removeUser(userId)
+      sendResponse({
+        success: true,
+        message: `${userId} 제거`,
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async toggleUserSelection(
+    userId: string,
+    sendResponse: (
+      response: BackgroundResponse<'TOGGLE_USER_SELECTION'>,
+    ) => void,
+  ) {
+    try {
+      await StorageService.toggleUserSelection(userId)
+      sendResponse({
+        success: true,
+        message: `${userId} isSelected 변경`,
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async setUserFetchingStatus(
+    userId: string,
+    problemIds: number[] | undefined,
+    sendResponse: (
+      response: BackgroundResponse<'SET_USER_FETCHING_STATUS'>,
+    ) => void,
+  ) {
+    try {
+      await StorageService.setUserFetchingStatusFalse(userId, problemIds)
+      sendResponse({
+        success: true,
+        message: `${userId} isFetching  변경`,
+        data: true,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async getUsers(
+    sendResponse: (response: BackgroundResponse<'GET_USERS'>) => void,
+  ) {
+    try {
+      const users = await StorageService.getUsers()
+      sendResponse({
+        success: true,
+        message: '유저 목록 조회',
+        data: users,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async addUserProblemIds(
+    userId: string,
+    problemIds: number[],
+    sendResponse: (
+      response: BackgroundResponse<'ADD_USER_PROBLEM_IDS'>,
+    ) => void,
+  ) {
+    try {
+      await StorageService.addUserProblemIds(userId, problemIds)
       sendResponse({
         success: true,
         message: `${userId} 문제 ID 저장`,
@@ -278,34 +467,13 @@ class MessageHandler {
     ) => void,
   ) {
     try {
-      const allUserProblems = await StorageService.getAllUserProblemIds()
+      const userProblemsMap = await StorageService.getAllUserProblemIds()
+      const userProblemsObject = Object.fromEntries(userProblemsMap)
 
       sendResponse({
         success: true,
         message: '모든 유저 문제 ID 조회',
-        data: allUserProblems,
-      })
-    } catch (error) {
-      ErrorHandler.handleCommonError(error, sendResponse)
-    }
-  }
-
-  static async updateSelectedUsers(
-    selectedUserIds: string[],
-    sendResponse: (
-      response: BackgroundResponse<'UPDATE_SELECTED_USERS'>,
-    ) => void,
-  ) {
-    try {
-      await TabService.sendMessageToAllTabs({
-        type: 'SELECTED_USERS_UPDATED',
-        selectedUserIds,
-      })
-
-      sendResponse({
-        success: true,
-        message: '선택된 유저 재설정',
-        data: true,
+        data: userProblemsObject,
       })
     } catch (error) {
       ErrorHandler.handleCommonError(error, sendResponse)
@@ -321,7 +489,7 @@ class MessageHandler {
     }
   }
 
-  private static async updateExtensionisEnabled(isEnabled: boolean) {
+  private static async updateExtensionEnabled(isEnabled: boolean) {
     await Promise.all([
       StorageService.setEnabled(isEnabled),
       TabService.sendMessageToAllTabs({
@@ -341,54 +509,64 @@ chrome.runtime.onMessage.addListener(
     message: BackgroundMessage,
     _sender,
     sendResponse: (
-      response:
-        | SuccessResponse<'TOGGLE_EXTENSION'>
-        | SuccessResponse<'FETCH_USER_INFO'>
-        | SuccessResponse<'FETCH_USER_PROBLEM_IDS'>
-        | SuccessResponse<'STORE_USER_PROBLEM_IDS'>
-        | SuccessResponse<'GET_ALL_USER_PROBLEM_IDS'>
-        | SuccessResponse<'UPDATE_SELECTED_USERS'>
-        | ErrorResponse,
+      response: BackgroundResponse<BackgroundMessage['type']>,
     ) => void,
   ) => {
-    if (message.type === 'TOGGLE_EXTENSION') {
-      MessageHandler.toggleExtension(message, sendResponse)
-      return true
-    }
+    switch (message.type) {
+      case 'TOGGLE_EXTENSION':
+        MessageHandler.toggleExtension(message, sendResponse)
+        return true
 
-    if (message.type === 'FETCH_USER_INFO') {
-      MessageHandler.fetchUserInfo(message.userId, sendResponse)
-      return true
-    }
+      case 'GET_USER_INFO':
+        MessageHandler.getUserInfo(message.userId, sendResponse)
+        return true
 
-    if (message.type === 'FETCH_USER_PROBLEM_IDS') {
-      MessageHandler.fetchUserProblemIds(
-        message.userId,
-        message.page,
-        sendResponse,
-      )
-      return true
-    }
+      case 'FETCH_USER_PROBLEM_IDS':
+        MessageHandler.fetchUserProblemIds(
+          message.userId,
+          message.page,
+          sendResponse,
+        )
+        return true
 
-    if (message.type === 'STORE_USER_PROBLEM_IDS') {
-      MessageHandler.storeUserProblemIds(
-        message.userId,
-        message.problemIds,
-        sendResponse,
-      )
-      return true
-    }
+      case 'ADD_USER':
+        MessageHandler.addUser(message.user, sendResponse)
+        return true
 
-    if (message.type === 'GET_ALL_USER_PROBLEM_IDS') {
-      MessageHandler.getAllUserProblemIds(sendResponse)
-      return true
-    }
+      case 'REMOVE_USER':
+        MessageHandler.removeUser(message.userId, sendResponse)
+        return true
 
-    if (message.type === 'UPDATE_SELECTED_USERS') {
-      MessageHandler.updateSelectedUsers(message.userIds, sendResponse)
-      return true
-    }
+      case 'TOGGLE_USER_SELECTION':
+        MessageHandler.toggleUserSelection(message.userId, sendResponse)
+        return true
 
-    return false
+      case 'SET_USER_FETCHING_STATUS':
+        MessageHandler.setUserFetchingStatus(
+          message.userId,
+          message.problemIds,
+          sendResponse,
+        )
+        return true
+
+      case 'GET_USERS':
+        MessageHandler.getUsers(sendResponse)
+        return true
+
+      case 'ADD_USER_PROBLEM_IDS':
+        MessageHandler.addUserProblemIds(
+          message.userId,
+          message.problemIds,
+          sendResponse,
+        )
+        return true
+
+      case 'GET_ALL_USER_PROBLEM_IDS':
+        MessageHandler.getAllUserProblemIds(sendResponse)
+        return true
+
+      default:
+        return false
+    }
   },
 )
