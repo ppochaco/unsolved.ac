@@ -3,13 +3,13 @@ import { createRoot } from 'react-dom/client'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { Spinner } from '@/components'
+import { PortalContainerContext } from '@/components'
 import { queryClient } from '@/libs'
 
 import tailwindStyles from '../index.css?inline'
 import { UserFilter } from './components'
 
-export const createShadowDOM = (shadowRoot: ShadowRoot) => {
+const createShadowDOM = (shadowRoot: ShadowRoot) => {
   const reactContainer = document.createElement('div')
   shadowRoot.appendChild(reactContainer)
 
@@ -20,12 +20,16 @@ export const createShadowDOM = (shadowRoot: ShadowRoot) => {
   const root = createRoot(reactContainer)
 
   root.render(
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<Spinner />}>
-        <UserFilter />
-      </Suspense>
-    </QueryClientProvider>,
+    <PortalContainerContext.Provider value={reactContainer}>
+      <QueryClientProvider client={queryClient}>
+        <Suspense>
+          <UserFilter />
+        </Suspense>
+      </QueryClientProvider>
+    </PortalContainerContext.Provider>,
   )
 
   return root
 }
+
+export { createShadowDOM }

@@ -20,8 +20,8 @@ export class DOMService {
     this.shadowHost.id = 'unsolved-ac-extension'
     this.shadowHost.style.cssText = `
       position: fixed;
-      top: 82px;
-      right: 10px;
+      top: 20px;
+      right: 70px;
       z-index: 10000000;
     `
 
