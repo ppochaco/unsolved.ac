@@ -13,7 +13,7 @@ import {
   Input,
 } from '@/components'
 import { DEFAULT_USER_IMAGE_URL } from '@/constants'
-import { fetchUserInfoApi } from '@/services'
+import { getUserInfoApi } from '@/services'
 import type { User } from '@/types'
 
 interface SearchUserFormProps {
@@ -26,7 +26,7 @@ export const SearchUserForm = ({ addUser }: SearchUserFormProps) => {
   const [user, setUser] = useState<User | null>(null)
 
   const { mutate: searchUser, status } = useMutation({
-    mutationFn: fetchUserInfoApi,
+    mutationFn: getUserInfoApi,
     onSuccess: (info) => {
       setUser({
         userId: info.handle,
