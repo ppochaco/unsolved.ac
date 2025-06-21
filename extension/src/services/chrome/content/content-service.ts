@@ -60,7 +60,13 @@ export class ContentService {
 
     const isEnabled = await getExtensionEnabledApi()
 
-    if (isEnabled && !this.hasShadowDOM()) {
+    if (!isEnabled) {
+      StyleService.resetAllStyles()
+      DOMService.removeShadowDOM()
+      return
+    }
+
+    if (!this.hasShadowDOM()) {
       DOMService.showShadowDOM()
       await DataService.loadUsers()
     }
