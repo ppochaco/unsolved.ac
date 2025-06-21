@@ -30,6 +30,7 @@ import type { ContentMessage, UserProblemIds } from '@/types'
 
 import { FetchUserProblemIds } from './fetch-user-problem-ids'
 import { SearchUserForm } from './search-user-form'
+import { SolvedStatusList } from './solved-status-list'
 
 export const UserFilter = () => {
   const portalContainer = usePortalContainer()
@@ -100,6 +101,7 @@ export const UserFilter = () => {
         className="mt-5 mr-2 flex w-sm flex-col gap-4"
         container={portalContainer}
       >
+        <SolvedStatusList />
         <SearchUserForm addUser={addUser} />
         <div className="flex w-full flex-col gap-2">
           <div className="flex gap-1">
