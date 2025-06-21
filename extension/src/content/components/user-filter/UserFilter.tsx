@@ -4,7 +4,6 @@ import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components'
-import type { ContentMessage } from '@/content/script'
 import { cn, queryClient } from '@/libs'
 import {
   addUserApi,
@@ -14,6 +13,7 @@ import {
   storageQueries,
   toggleUserSelectionApi,
 } from '@/services'
+import type { ContentMessage, UserProblemIds } from '@/types'
 
 import { FetchUserProblemIds } from './fetch-user-problem-ids'
 import { SearchUserForm } from './search-user-form'
@@ -52,13 +52,8 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
   })
 
   const { mutate: finishFetchingProblem } = useMutation({
-    mutationFn: ({
-      userId,
-      problemIds,
-    }: {
-      userId: string
-      problemIds: number[]
-    }) => setUserFetchingStatusApi(userId, problemIds),
+    mutationFn: ({ userId, problemIds }: UserProblemIds) =>
+      setUserFetchingStatusApi(userId, problemIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: storageQueries.users() })
       refetchUsers()

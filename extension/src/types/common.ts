@@ -6,3 +6,8 @@ export type User = {
   isFetchingProblem: boolean
   problemIds: number[]
 }
+
+export type UserProblemIds = {
+  userId: string
+  problemIds: number[]
+}
