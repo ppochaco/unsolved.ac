@@ -31,7 +31,7 @@ export class ContentService {
   }
 
   public static async enable() {
-    DOMService.showShadowDOM(() => this.disable())
+    DOMService.showShadowDOM()
     await this.loadInitialData()
   }
 

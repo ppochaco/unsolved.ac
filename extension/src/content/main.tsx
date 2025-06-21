@@ -9,10 +9,7 @@ import { queryClient } from '@/libs'
 import tailwindStyles from '../index.css?inline'
 import { UserFilter } from './components'
 
-export const createShadowDOM = (
-  shadowRoot: ShadowRoot,
-  onClose: () => void,
-) => {
+export const createShadowDOM = (shadowRoot: ShadowRoot) => {
   const reactContainer = document.createElement('div')
   shadowRoot.appendChild(reactContainer)
 
@@ -25,7 +22,7 @@ export const createShadowDOM = (
   root.render(
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={<Spinner />}>
-        <UserFilter onClose={onClose} />
+        <UserFilter />
       </Suspense>
     </QueryClientProvider>,
   )

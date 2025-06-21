@@ -18,11 +18,7 @@ import type { ContentMessage, UserProblemIds } from '@/types'
 import { FetchUserProblemIds } from './fetch-user-problem-ids'
 import { SearchUserForm } from './search-user-form'
 
-interface UserFilterProps {
-  onClose: () => void
-}
-
-export const UserFilter = ({ onClose }: UserFilterProps) => {
+export const UserFilter = () => {
   const { data: users, refetch: refetchUsers } = useSuspenseQuery({
     queryKey: storageQueries.users(),
     queryFn: getUsersApi,
@@ -79,14 +75,6 @@ export const UserFilter = ({ onClose }: UserFilterProps) => {
       <CardHeader>
         <CardTitle className="text-center text-lg">unsolved-ac</CardTitle>
       </CardHeader>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        className="group absolute top-2 right-2 rounded-full"
-      >
-        <Cross2Icon className="text-plum-200 group-hover:text-plum-400 size-5" />
-      </Button>
       <CardContent className="flex flex-col gap-4">
         <SearchUserForm addUser={addUser} />
         <div className="flex w-full flex-col gap-2">

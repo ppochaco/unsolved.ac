@@ -7,7 +7,7 @@ export class DOMService {
   private static shadowRoot: ShadowRoot | null = null
   private static reactRoot: Root | null = null
 
-  public static showShadowDOM(onDisable: () => void) {
+  public static showShadowDOM() {
     if (this.shadowHost && document.body.contains(this.shadowHost)) {
       return
     }
@@ -26,7 +26,7 @@ export class DOMService {
     `
 
     this.shadowRoot = this.shadowHost.attachShadow({ mode: 'closed' })
-    this.reactRoot = createShadowDOM(this.shadowRoot, onDisable)
+    this.reactRoot = createShadowDOM(this.shadowRoot)
 
     document.body.appendChild(this.shadowHost)
   }
