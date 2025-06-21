@@ -111,4 +111,12 @@ export class StorageService {
 
     return userProblemsMap
   }
+
+  static async getIsEnabled() {
+    const result: Record<string, boolean> = await chrome.storage.local.get([
+      'isEnabled',
+    ])
+
+    return result.isEnabled
+  }
 }

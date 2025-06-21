@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 import { ERROR_MESSAGES } from '@/constants'
-import { fetchUserInfoApi, fetchUserProblemApi } from '@/services/api'
+import {
+  fetchSolvedAcUserInfoApi,
+  fetchSolvedAcUserProblemApi,
+} from '@/services/api'
 import type { BackgroundMessage, BackgroundResponse, User } from '@/types'
 
 import { StorageService } from './storage'
@@ -41,7 +44,7 @@ export class BackgroundService {
     sendResponse: (response: BackgroundResponse<'GET_USER_INFO'>) => void,
   ) {
     try {
-      const data = await fetchUserInfoApi(userId)
+      const data = await fetchSolvedAcUserInfoApi(userId)
 
       sendResponse({
         success: true,
@@ -79,7 +82,7 @@ export class BackgroundService {
     ) => void,
   ) {
     try {
-      const data = await fetchUserProblemApi(userId, page)
+      const data = await fetchSolvedAcUserProblemApi(userId, page)
       const problemIds = data.items.map((p) => p.problemId)
 
       sendResponse({
@@ -236,6 +239,24 @@ export class BackgroundService {
         success: true,
         message: '모든 유저 문제 ID 조회',
         data: userProblemsObject,
+      })
+    } catch (error) {
+      ErrorHandler.handleCommonError(error, sendResponse)
+    }
+  }
+
+  static async getExtensionEnabled(
+    sendResponse: (
+      response: BackgroundResponse<'GET_EXTENSION_ENABLED'>,
+    ) => void,
+  ) {
+    try {
+      const isEnabled = await StorageService.getIsEnabled()
+
+      sendResponse({
+        success: true,
+        message: '익스텐션 상태 조회',
+        data: isEnabled,
       })
     } catch (error) {
       ErrorHandler.handleCommonError(error, sendResponse)

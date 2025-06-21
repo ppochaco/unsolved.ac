@@ -5,7 +5,7 @@ import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import { Progress } from '@/components'
 import {
   addUserProblemIdsApi,
-  fetchUserProblemIdsApi,
+  getUserProblemIdsApi,
   storageQueries,
   userQueries,
 } from '@/services'
@@ -30,7 +30,7 @@ export const FetchUserProblemIds = ({
     useInfiniteQuery({
       queryKey: userQueries.problemIds(user.userId),
       queryFn: ({ pageParam = 1 }) =>
-        fetchUserProblemIdsApi(user.userId, pageParam),
+        getUserProblemIdsApi(user.userId, pageParam),
       getNextPageParam: (lastPage) => lastPage.nextPageToken,
       initialPageParam: 1,
     })

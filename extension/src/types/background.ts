@@ -51,6 +51,10 @@ type GetAllUserProblemIds = {
   type: 'GET_ALL_USER_PROBLEM_IDS'
 }
 
+type GetExtensionEnabled = {
+  type: 'GET_EXTENSION_ENABLED'
+}
+
 type BackgroundMessage =
   | ToggleExtension
   | GetUserInfo
@@ -62,6 +66,7 @@ type BackgroundMessage =
   | GetUsers
   | AddUserProblemIds
   | GetAllUserProblemIds
+  | GetExtensionEnabled
 
 type UserProblemResponse = {
   count: number
@@ -81,6 +86,7 @@ type MessageResponseData = {
   REMOVE_USER_PROBLEM_IDS: boolean
   GET_ALL_USER_PROBLEM_IDS: Record<string, number[]>
   GET_USER_PROBLEM_IDS: number[]
+  GET_EXTENSION_ENABLED: boolean
 }
 
 type SuccessResponse<T extends BackgroundMessage['type']> = {

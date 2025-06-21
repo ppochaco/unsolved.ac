@@ -2,7 +2,7 @@ import type { SolvedAcProblem, SolvedAcUser } from '@/types'
 
 import { solvedAcApi } from '../instance'
 
-const fetchUserInfoApi = async (userId: string) => {
+const fetchSolvedAcUserInfoApi = async (userId: string) => {
   const response = await solvedAcApi.get<SolvedAcUser>('/api/v3/user/show', {
     params: { handle: userId },
   })
@@ -15,7 +15,7 @@ type SearchProblemResponse = {
   items: SolvedAcProblem[]
 }
 
-const fetchUserProblemApi = async (userId: string, page: number) => {
+const fetchSolvedAcUserProblemApi = async (userId: string, page: number) => {
   const response = await solvedAcApi.get<SearchProblemResponse>(
     '/api/v3/search/problem',
     {
@@ -29,4 +29,4 @@ const fetchUserProblemApi = async (userId: string, page: number) => {
   return response.data
 }
 
-export { fetchUserInfoApi, fetchUserProblemApi }
+export { fetchSolvedAcUserInfoApi, fetchSolvedAcUserProblemApi }

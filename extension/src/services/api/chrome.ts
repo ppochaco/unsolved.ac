@@ -1,23 +1,5 @@
 import type { BackgroundMessage, BackgroundResponse, User } from '@/types'
 
-const getExtensionEnabledApi = async () => {
-  const { isEnabled } = await chrome.storage.local.get(['isEnabled'])
-  return Boolean(isEnabled)
-}
-
-const getAllUserProblemIdsApi = async () => {
-  const response: BackgroundResponse<'GET_ALL_USER_PROBLEM_IDS'> =
-    await chrome.runtime.sendMessage<BackgroundMessage>({
-      type: 'GET_ALL_USER_PROBLEM_IDS',
-    })
-
-  if (!response.success) {
-    throw new Error(response.error)
-  }
-
-  return response.data
-}
-
 const toggleIsEnabledApi = async (isEnabled: boolean) => {
   const response: BackgroundResponse<'TOGGLE_EXTENSION'> =
     await chrome.runtime.sendMessage<BackgroundMessage>({
@@ -32,7 +14,7 @@ const toggleIsEnabledApi = async (isEnabled: boolean) => {
   return response.data
 }
 
-const fetchUserProblemIdsApi = async (userId: string, page: number) => {
+const getUserProblemIdsApi = async (userId: string, page: number) => {
   const response: BackgroundResponse<'FETCH_USER_PROBLEM_IDS'> =
     await chrome.runtime.sendMessage<BackgroundMessage>({
       type: 'FETCH_USER_PROBLEM_IDS',
@@ -157,6 +139,32 @@ const addUserProblemIdsApi = async (userId: string, problemIds: number[]) => {
   return response.data
 }
 
+const getAllUserProblemIdsApi = async () => {
+  const response: BackgroundResponse<'GET_ALL_USER_PROBLEM_IDS'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'GET_ALL_USER_PROBLEM_IDS',
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
+  }
+
+  return response.data
+}
+
+const getExtensionEnabledApi = async () => {
+  const response: BackgroundResponse<'GET_EXTENSION_ENABLED'> =
+    await chrome.runtime.sendMessage<BackgroundMessage>({
+      type: 'GET_EXTENSION_ENABLED',
+    })
+
+  if (!response.success) {
+    throw new Error(response.error)
+  }
+
+  return response.data
+}
+
 const storageQueries = {
   all: () => ['chrome', 'storage'] as const,
   enabled: () => [...storageQueries.all(), 'enabled'] as const,
@@ -176,10 +184,8 @@ const userQueries = {
 }
 
 export {
-  getExtensionEnabledApi,
-  getAllUserProblemIdsApi,
   toggleIsEnabledApi,
-  fetchUserProblemIdsApi,
+  getUserProblemIdsApi,
   getUserInfoApi,
   addUserApi,
   removeUserApi,
@@ -187,6 +193,8 @@ export {
   setUserFetchingStatusApi,
   getUsersApi,
   addUserProblemIdsApi,
+  getAllUserProblemIdsApi,
+  getExtensionEnabledApi,
   storageQueries,
   userQueries,
 }

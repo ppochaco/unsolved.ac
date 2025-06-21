@@ -67,6 +67,10 @@ chrome.runtime.onMessage.addListener(
         BackgroundService.getAllUserProblemIds(sendResponse)
         return true
 
+      case 'GET_EXTENSION_ENABLED':
+        BackgroundService.getExtensionEnabled(sendResponse)
+        return true
+
       default:
         return false
     }
