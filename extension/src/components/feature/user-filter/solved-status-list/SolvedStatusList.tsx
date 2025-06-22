@@ -23,12 +23,12 @@ const SOLVED_STATES = [
   },
   {
     label: '일부 unsolved',
-    textColor: 'text-plum-400',
-    dotColor: 'bg-plum-400',
+    textColor: 'text-plum-700',
+    dotColor: 'bg-plum-700',
   },
   {
     label: '모두 solved',
-    textColor: '',
-    dotColor: 'bg-plum-950',
+    textColor: 'text-plum-400',
+    dotColor: 'bg-plum-400',
   },
 ] as const

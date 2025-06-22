@@ -25,7 +25,7 @@ export class StyleService {
       let color: ProblemColor
 
       if (unionSet.has(problemId)) {
-        color = intersectionSet.has(problemId) ? 'black' : 'gray'
+        color = intersectionSet.has(problemId) ? 'gray' : 'black'
       } else {
         color = 'purple'
       }
@@ -79,7 +79,7 @@ export class StyleService {
 }
 
 const colors: Record<ProblemColor, string> = {
-  black: '#1f132e',
+  black: '#665e70',
   gray: '#a39ea9',
   purple: '#904eee',
 }
