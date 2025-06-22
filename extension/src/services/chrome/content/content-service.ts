@@ -33,7 +33,7 @@ export class ContentService {
   public static async enable() {
     DOMService.showShadowDOM()
     await DataService.loadUsers()
-    this.applyColors()
+    await this.applyColors()
   }
 
   public static async disable() {
@@ -47,7 +47,7 @@ export class ContentService {
     const isEnabled = await getExtensionEnabledApi()
 
     if (isEnabled || this.hasShadowDOM()) {
-      this.applyColors()
+      await this.applyColors()
     }
   }
 
@@ -71,10 +71,11 @@ export class ContentService {
       await DataService.loadUsers()
     }
 
+    // TODO: solved.ac에서 색상 적용된 거 감지한 후 실행하도록 수정
     setTimeout(() => {
       const userProblemIds = DataService.getUserProblemIds()
       StyleService.applyColors(userProblemIds)
-    }, 100)
+    }, 300)
   }
 
   private static hasShadowDOM() {
