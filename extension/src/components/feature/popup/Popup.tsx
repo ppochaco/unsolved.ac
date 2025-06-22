@@ -1,3 +1,4 @@
+import { GitHubLogoIcon } from '@radix-ui/react-icons'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 
 import { Label, Switch } from '@/components'
@@ -8,6 +9,8 @@ import {
   storageQueries,
   toggleIsEnabledApi,
 } from '@/services'
+
+const GITHUB_URL = 'https://github.com/ppochaco/unsolved.ac'
 
 export const Popup = () => {
   const { data: isEnabled } = useSuspenseQuery({
@@ -23,7 +26,7 @@ export const Popup = () => {
   })
 
   return (
-    <div className="flex w-60 flex-col gap-4 py-5">
+    <div className="relative flex w-60 flex-col gap-4 py-5">
       <div className="flex flex-col gap-1">
         <h2 className="text-center text-xl font-bold hover:cursor-default">
           unsolved-ac
@@ -48,9 +51,17 @@ export const Popup = () => {
           disabled={status === 'pending'}
         />
         <Label htmlFor="unsolved-mode" className="sr-only">
-          unsolved 백준 문제 찾기
+          모두 풀지 않은 백준 문제 찾기
         </Label>
       </div>
+      <a
+        href={GITHUB_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="text-plum-500 hover:text-plum-800 absolute right-2 bottom-2 hover:cursor-default"
+      >
+        <GitHubLogoIcon />
+      </a>
     </div>
   )
 }
