@@ -2,7 +2,7 @@
 name: Bug report
 about: 버그 리포트
 title: "[BUG]"
-labels: bug
+labels: bug, enhancement
 assignees: ''
 
 ---
