@@ -3,7 +3,7 @@
   "name": "unsolved ac",
   "version": "1.0.0",
   "description": "unsolved 백준 문제 찾기",
-  "permissions": ["storage", "scripting"],
+  "permissions": ["storage"],
   "host_permissions": ["https://solved.ac/problems*"],
   "background": {
     "service_worker": "src/services/chrome/background-script.ts",
