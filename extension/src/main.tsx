@@ -7,7 +7,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { Popup, PopupErrorFallback, Spinner } from '@/components'
 import { queryClient } from '@/libs'
 
-import '../index.css'
+import './index.css'
 
 const container = document.getElementById('popup-root')
 

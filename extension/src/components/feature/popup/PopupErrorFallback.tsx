@@ -6,6 +6,10 @@ export const PopupErrorFallback = ({
   error,
   resetErrorBoundary,
 }: FallbackProps) => {
+  if (!(error instanceof Error)) {
+    return null
+  }
+
   return (
     <div className="w-60 px-4 py-5 text-center">
       <h2 className="mb-3 text-xl font-bold">unsolved-ac</h2>
